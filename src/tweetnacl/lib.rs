@@ -8,4 +8,6 @@ extern crate libc;
 extern crate rlibc;
 
 pub mod cryptobox;
+pub mod secretbox;
+
 mod bindings;

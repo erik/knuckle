@@ -52,7 +52,7 @@ impl CryptoBox {
         }
     }
 
-    pub fn decrypt(&self, cipher: &[u8], nonce: &[u8], key: Key) -> Vec<u8> {
+    pub fn decrypt(&self, cipher: &[u8], nonce: &[u8, ..24], key: Key) -> Vec<u8> {
         unsafe {
             let mut msg: Vec<u8> = Vec::with_capacity(cipher.len());
 
