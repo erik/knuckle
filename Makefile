@@ -72,7 +72,7 @@ else
   Q := @
 endif
 
-all: $(DEFAULT)
+all: $(DEFAULT) tweetnacl
 
 help:
 	$(Q)echo "--- rust-empty (0.5 004)"
@@ -130,6 +130,7 @@ help:
 		test \
 		test-internal \
 	    test-external \
+		tweetnacl \
 		watch
 
 nightly-install:
