@@ -36,4 +36,16 @@ extern "C" {
                                  nonce: *c_uchar,
                                  k: *c_uchar) -> c_int;
 
+    // --- Sign ---
+    pub fn crypto_sign(smsg: *mut c_uchar,
+                       smsg_len: *mut c_ulonglong,
+                       msg: *c_uchar,
+                       msg_len: c_ulonglong,
+                       sk: *c_uchar) -> c_int;
+
+    pub fn crypto_sign_open(msg: *mut c_uchar,
+                            msg_len: *mut c_ulonglong,
+                            smsg: *c_uchar,
+                            smsg_len: c_ulonglong,
+                            pk: *c_uchar) -> c_int;
 }

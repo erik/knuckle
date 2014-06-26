@@ -9,5 +9,7 @@ extern crate rlibc;
 
 pub mod cryptobox;
 pub mod secretbox;
+pub mod stream;
+pub mod sign;
 
 mod bindings;

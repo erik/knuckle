@@ -20,7 +20,7 @@ impl Keypair {
 
             crypto_box_keypair(pk.as_mut_ptr(), sk.as_mut_ptr());
 
-            Keypair{ pk: pk, sk: sk }
+            Keypair { pk: pk, sk: sk }
         }
     }
 }
