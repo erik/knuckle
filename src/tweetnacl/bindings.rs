@@ -48,4 +48,9 @@ extern "C" {
                             smsg: *c_uchar,
                             smsg_len: c_ulonglong,
                             pk: *c_uchar) -> c_int;
+
+    // --- Hash ---
+    pub fn crypto_hash(hash: *mut c_uchar,
+                       msg: *c_uchar,
+                       len: u64) -> c_int;
 }

@@ -11,5 +11,6 @@ pub mod cryptobox;
 pub mod secretbox;
 pub mod stream;
 pub mod sign;
+pub mod hash;
 
 mod bindings;
