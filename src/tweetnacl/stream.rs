@@ -1,6 +1,3 @@
-use std::vec;
-use bindings::*;
-
 static KEY_BYTES: uint = 32;
 static NONCE_BYTES: uint = 8;
 

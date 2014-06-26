@@ -1,6 +1,3 @@
-use std::vec;
-use std::option;
-
 use bindings::*;
 
 static PUBKEY_BYTES: uint = 32;

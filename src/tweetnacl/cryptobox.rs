@@ -1,11 +1,10 @@
-use std::vec;
 use bindings::*;
 
 pub struct CryptoBox {
     pub keypair: Keypair,
 }
 
-type Key = [u8, ..32];
+pub type Key = [u8, ..32];
 
 pub struct Keypair {
     pub pk: Key,
