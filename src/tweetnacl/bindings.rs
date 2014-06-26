@@ -1,7 +1,7 @@
 use libc::*;
-
 /// Rust bindings to C tweetnacl library.
 
+#[link(name = "tweetnacl", kind = "static")]
 extern "C" {
     // --- Utilities ---
     pub fn randombytes(ptr: *mut c_uchar, sz: u64);
