@@ -41,7 +41,7 @@ SOURCE_FILES = $(shell test -e src/ && find src -type f)
 COMPILER = rustc
 
 # For release:
-  COMPILER_FLAGS = -O
+COMPILER_FLAGS = -O
 # For debugging:
 # COMPILER_FLAGS = -g
 
@@ -63,7 +63,7 @@ RLIB = target/$(TARGET)/lib/$(RLIB_FILE)
 DYLIB_FILE = $(shell (rustc --crate-type=dylib --crate-file-name "$(LIB_ENTRY_FILE)" 2> /dev/null) || (echo "dummy.dylib"))
 DYLIB = target/$(TARGET)/lib/$(DYLIB_FILE)
 
-TWEETNACL_LIB = $(TARGET_LIB_DIR)/tweetnacl.o
+TWEETNACL_LIB = $(TARGET_LIB_DIR)/libtweetnacl.a
 
 # Use 'VERBOSE=1' to echo all commands, for example 'make help VERBOSE=1'.
 ifdef VERBOSE
@@ -251,7 +251,7 @@ bin/main: $(SOURCE_FILES) | bin/ $(EXE_ENTRY_FILE)
 	&& echo "--- Built executable" \
 	&& echo "--- Type 'make run' to run executable"
 
-test: test-internal test-external
+test: tweetnacl test-internal test-external
 	$(Q)echo "--- Internal tests succeeded" \
 	&& echo "--- External tests succeeded"
 
@@ -260,7 +260,7 @@ test-external: bin/test-external
 	&& ./test-external
 
 bin/test-external: $(SOURCE_FILES) | rlib bin/ src/test.rs
-	$(Q)$(COMPILER) --target "$(TARGET)" $(COMPILER_FLAGS) --test src/test.rs -o bin/test-external -L "target/$(TARGET)/lib" \
+	$(Q)$(COMPILER) --target "$(TARGET)" $(COMPILER_FLAGS) --test src/test.rs -o bin/test-external -L "target/$(TARGET)/lib/" \
 	&& echo "--- Built external test runner"
 
 test-internal: bin/test-internal
@@ -268,7 +268,7 @@ test-internal: bin/test-internal
 	&& ./test-internal
 
 bin/test-internal: $(SOURCE_FILES) | rlib src/ bin/
-	$(Q)$(COMPILER) --target "$(TARGET)" $(COMPILER_FLAGS) --test $(LIB_ENTRY_FILE) -o bin/test-internal -L "target/$(TARGET)/lib" \
+	$(Q)$(COMPILER) --target "$(TARGET)" $(COMPILER_FLAGS) --test $(LIB_ENTRY_FILE) -o bin/test-internal -L "target/$(TARGET)/lib/" \
 	&& echo "--- Built internal test runner"
 
 bench: bench-internal bench-external
@@ -279,11 +279,12 @@ bench-external: test-external
 bench-internal: test-internal
 	$(Q)bin/test-internal --bench
 
-lib: $(TWEETNACL_LIB) rlib dylib
+lib: tweetnacl rlib dylib
 	$(Q)echo "--- Type 'make test' to test library"
 
-$(TWEETNACL_LIB): src/tweetnacl.c src/tweetnacl.h
-	$(Q)cc -Isrc/ -c src/tweetnacl.c -o $(TWEETNACL_LIB)
+tweetnacl: src/tweetnacl.c src/tweetnacl.h
+	$(Q)cc -c -Isrc/ src/tweetnacl.c -o $(TWEETNACL_LIB:.a=.o)
+	$(Q)ar rcs $(TWEETNACL_LIB) $(TWEETNACL_LIB:.a=.o)
 
 rlib: $(RLIB)
 
@@ -364,6 +365,7 @@ clean:
 	$(Q)rm -f "bin/main"
 	$(Q)rm -f "bin/test-internal"
 	$(Q)rm -f "bin/test-external"
+	$(Q)rm -f "$(TWEETNACL_LIB)"
 	$(Q)echo "--- Deleted binaries and documentation"
 
 clear-project:
