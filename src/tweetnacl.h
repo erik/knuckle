@@ -37,7 +37,7 @@ extern int crypto_auth_hmacsha512256_tweet_verify(const unsigned char *,const un
 #define crypto_box_curve25519xsalsa20poly1305_tweet_NONCEBYTES 24
 #define crypto_box_curve25519xsalsa20poly1305_tweet_ZEROBYTES 32
 #define crypto_box_curve25519xsalsa20poly1305_tweet_BOXZEROBYTES 16
-extern int crypto_box_tweet(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *,const unsigned char *,const unsigned char *);
+extern int crypto_box(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *,const unsigned char *,const unsigned char *);
 extern int crypto_box_open(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *,const unsigned char *,const unsigned char *);
 extern int crypto_box_keypair(unsigned char *,unsigned char *);
 extern int crypto_box_beforenm(unsigned char *,const unsigned char *,const unsigned char *);

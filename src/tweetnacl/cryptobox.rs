@@ -4,11 +4,12 @@ pub struct CryptoBox {
     pub keypair: Keypair,
 }
 
-pub type Key = [u8, ..32];
+pub type SecretKey = [u8, ..32];
+pub type PublicKey = [u8, ..32];
 
 pub struct Keypair {
-    pub pk: Key,
-    pub sk: Key
+    pub pk: PublicKey,
+    pub sk: SecretKey
 }
 
 impl Keypair {
@@ -33,12 +34,13 @@ impl CryptoBox {
         CryptoBox { keypair: key }
     }
 
-    pub fn encrypt(&self, msg: &[u8], key: Key) -> (Vec<u8>, Vec<u8>) {
+    pub fn encrypt(&self, msg: &[u8], key: PublicKey) -> (Vec<u8>, Vec<u8>) {
         unsafe {
             let mut nonce: Vec<u8> = Vec::with_capacity(24);
             let mut cipher: Vec<u8> = Vec::with_capacity(msg.len());
 
             randombytes(nonce.as_mut_ptr(), 24);
+            nonce.set_len(24);
 
             crypto_box(cipher.as_mut_ptr(),
                        msg.as_ptr(),
@@ -47,11 +49,12 @@ impl CryptoBox {
                        key.as_ptr(),
                        self.keypair.sk.as_ptr());
 
+            cipher.set_len(msg.len());
             (cipher, nonce)
         }
     }
 
-    pub fn decrypt(&self, cipher: &[u8], nonce: &[u8, ..24], key: Key) -> Vec<u8> {
+    pub fn decrypt(&self, cipher: &[u8], nonce: &[u8], key: PublicKey) -> Vec<u8> {
         unsafe {
             let mut msg: Vec<u8> = Vec::with_capacity(cipher.len());
 
@@ -62,6 +65,7 @@ impl CryptoBox {
                             key.as_ptr(),
                             self.keypair.sk.as_ptr());
 
+            msg.set_len(cipher.len());
             msg
         }
     }

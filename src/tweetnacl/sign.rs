@@ -49,6 +49,7 @@ impl Signer {
                         msg.as_ptr(),
                         msg.len() as u64,
                         self.keypair.sk.as_ptr());
+            signed.set_len(signed_len as uint);
 
             signed
         }
@@ -65,7 +66,10 @@ impl Signer {
                                    smsg.len() as u64,
                                    pk.as_ptr()) {
                 -1 => None,
-                0  => Some(msg),
+                0  => {
+                    msg.set_len(msg_len as uint);
+                    Some(msg)
+                },
                 _  => fail!("Impossible things happened")
             }
         }
