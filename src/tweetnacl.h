@@ -3,55 +3,25 @@
 
 // --- crypto_auth ---
 #define crypto_auth_PRIMITIVE "hmacsha512256"
-#define crypto_auth crypto_auth_hmacsha512256
-#define crypto_auth_verify crypto_auth_hmacsha512256_verify
-#define crypto_auth_BYTES crypto_auth_hmacsha512256_BYTES
-#define crypto_auth_KEYBYTES crypto_auth_hmacsha512256_KEYBYTES
-#define crypto_auth_IMPLEMENTATION crypto_auth_hmacsha512256_IMPLEMENTATION
-#define crypto_auth_VERSION crypto_auth_hmacsha512256_VERSION
-#define crypto_auth_hmacsha512256_tweet_BYTES 32
-#define crypto_auth_hmacsha512256_tweet_KEYBYTES 32
+#define crypto_auth_BYTES 32
+#define crypto_auth_KEYBYTES 32
 extern int crypto_auth_hmacsha512256_tweet(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *);
 extern int crypto_auth_hmacsha512256_tweet_verify(const unsigned char *,const unsigned char *,unsigned long long,const unsigned char *);
-#define crypto_auth_hmacsha512256_tweet_VERSION "-"
-#define crypto_auth_hmacsha512256 crypto_auth_hmacsha512256_tweet
-#define crypto_auth_hmacsha512256_verify crypto_auth_hmacsha512256_tweet_verify
-#define crypto_auth_hmacsha512256_BYTES crypto_auth_hmacsha512256_tweet_BYTES
-#define crypto_auth_hmacsha512256_KEYBYTES crypto_auth_hmacsha512256_tweet_KEYBYTES
-#define crypto_auth_hmacsha512256_VERSION crypto_auth_hmacsha512256_tweet_VERSION
-#define crypto_auth_hmacsha512256_IMPLEMENTATION "crypto_auth/hmacsha512256/tweet"
 
 // --- crypto_box ---
 #define crypto_box_PRIMITIVE "curve25519xsalsa20poly1305"
-#define crypto_box_PUBLICKEYBYTES crypto_box_curve25519xsalsa20poly1305_PUBLICKEYBYTES
-#define crypto_box_SECRETKEYBYTES crypto_box_curve25519xsalsa20poly1305_SECRETKEYBYTES
-#define crypto_box_BEFORENMBYTES crypto_box_curve25519xsalsa20poly1305_BEFORENMBYTES
-#define crypto_box_NONCEBYTES crypto_box_curve25519xsalsa20poly1305_NONCEBYTES
-#define crypto_box_ZEROBYTES crypto_box_curve25519xsalsa20poly1305_ZEROBYTES
-#define crypto_box_BOXZEROBYTES crypto_box_curve25519xsalsa20poly1305_BOXZEROBYTES
-#define crypto_box_IMPLEMENTATION crypto_box_curve25519xsalsa20poly1305_IMPLEMENTATION
-#define crypto_box_VERSION crypto_box_curve25519xsalsa20poly1305_VERSION
-#define crypto_box_curve25519xsalsa20poly1305_tweet_PUBLICKEYBYTES 32
-#define crypto_box_curve25519xsalsa20poly1305_tweet_SECRETKEYBYTES 32
-#define crypto_box_curve25519xsalsa20poly1305_tweet_BEFORENMBYTES 32
-#define crypto_box_curve25519xsalsa20poly1305_tweet_NONCEBYTES 24
-#define crypto_box_curve25519xsalsa20poly1305_tweet_ZEROBYTES 32
-#define crypto_box_curve25519xsalsa20poly1305_tweet_BOXZEROBYTES 16
+#define crypto_box_PUBLICKEYBYTES 32
+#define crypto_box_SECRETKEYBYTES 32
+#define crypto_box_BEFORENMBYTES 32
+#define crypto_box_NONCEBYTES 24
+#define crypto_box_ZEROBYTES 32
+#define crypto_box_BOXZEROBYTES 16
 extern int crypto_box(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *,const unsigned char *,const unsigned char *);
 extern int crypto_box_open(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *,const unsigned char *,const unsigned char *);
 extern int crypto_box_keypair(unsigned char *,unsigned char *);
 extern int crypto_box_beforenm(unsigned char *,const unsigned char *,const unsigned char *);
 extern int crypto_box_afternm(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *,const unsigned char *);
 extern int crypto_box_open_afternm(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *,const unsigned char *);
-#define crypto_box_curve25519xsalsa20poly1305_tweet_VERSION "-"
-#define crypto_box_curve25519xsalsa20poly1305_PUBLICKEYBYTES crypto_box_curve25519xsalsa20poly1305_tweet_PUBLICKEYBYTES
-#define crypto_box_curve25519xsalsa20poly1305_SECRETKEYBYTES crypto_box_curve25519xsalsa20poly1305_tweet_SECRETKEYBYTES
-#define crypto_box_curve25519xsalsa20poly1305_BEFORENMBYTES crypto_box_curve25519xsalsa20poly1305_tweet_BEFORENMBYTES
-#define crypto_box_curve25519xsalsa20poly1305_NONCEBYTES crypto_box_curve25519xsalsa20poly1305_tweet_NONCEBYTES
-#define crypto_box_curve25519xsalsa20poly1305_ZEROBYTES crypto_box_curve25519xsalsa20poly1305_tweet_ZEROBYTES
-#define crypto_box_curve25519xsalsa20poly1305_BOXZEROBYTES crypto_box_curve25519xsalsa20poly1305_tweet_BOXZEROBYTES
-#define crypto_box_curve25519xsalsa20poly1305_VERSION crypto_box_curve25519xsalsa20poly1305_tweet_VERSION
-#define crypto_box_curve25519xsalsa20poly1305_IMPLEMENTATION "crypto_box/curve25519xsalsa20poly1305/tweet"
 
 // --- crypto_core ---
 #define crypto_core_PRIMITIVE "salsa20"
@@ -106,90 +76,40 @@ extern int crypto_hashblocks(unsigned char *,const unsigned char *,unsigned long
 
 // --- crypto_hash ---
 #define crypto_hash_PRIMITIVE "sha512"
-#define crypto_hash_BYTES crypto_hash_sha512_BYTES
-#define crypto_hash_IMPLEMENTATION crypto_hash_sha512_IMPLEMENTATION
-#define crypto_hash_VERSION crypto_hash_sha512_VERSION
-#define crypto_hash_sha512_tweet_BYTES 64
-#define crypto_hash_sha512_tweet_VERSION "-"
-#define crypto_hash_sha512_BYTES crypto_hash_sha512_tweet_BYTES
-#define crypto_hash_sha512_VERSION crypto_hash_sha512_tweet_VERSION
-#define crypto_hash_sha512_IMPLEMENTATION "crypto_hash/sha512/tweet"
+#define crypto_hash_BYTES 64
 extern int crypto_hash(unsigned char *,const unsigned char *,unsigned long long);
 
 // --- crypto_onetimeauth ---
 #define crypto_onetimeauth_PRIMITIVE "poly1305"
-#define crypto_onetimeauth_verify crypto_onetimeauth_poly1305_verify
-#define crypto_onetimeauth_BYTES crypto_onetimeauth_poly1305_BYTES
-#define crypto_onetimeauth_KEYBYTES crypto_onetimeauth_poly1305_KEYBYTES
-#define crypto_onetimeauth_IMPLEMENTATION crypto_onetimeauth_poly1305_IMPLEMENTATION
-#define crypto_onetimeauth_VERSION crypto_onetimeauth_poly1305_VERSION
-#define crypto_onetimeauth_poly1305_tweet_BYTES 16
-#define crypto_onetimeauth_poly1305_tweet_KEYBYTES 32
+#define crypto_onetimeauth_BYTES 16
+#define crypto_onetimeauth_KEYBYTES 32
 extern int crypto_onetimeauth(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *);
 extern int crypto_onetimeauth_verify(const unsigned char *,const unsigned char *,unsigned long long,const unsigned char *);
-#define crypto_onetimeauth_poly1305_tweet_VERSION "-"
-#define crypto_onetimeauth_poly1305_BYTES crypto_onetimeauth_poly1305_tweet_BYTES
-#define crypto_onetimeauth_poly1305_KEYBYTES crypto_onetimeauth_poly1305_tweet_KEYBYTES
-#define crypto_onetimeauth_poly1305_VERSION crypto_onetimeauth_poly1305_tweet_VERSION
-#define crypto_onetimeauth_poly1305_IMPLEMENTATION "crypto_onetimeauth/poly1305/tweet"
 
 // --- crypto_scalarmult ---
 #define crypto_scalarmult_PRIMITIVE "curve25519"
-#define crypto_scalarmult_BYTES crypto_scalarmult_curve25519_BYTES
-#define crypto_scalarmult_SCALARBYTES crypto_scalarmult_curve25519_SCALARBYTES
-#define crypto_scalarmult_IMPLEMENTATION crypto_scalarmult_curve25519_IMPLEMENTATION
-#define crypto_scalarmult_VERSION crypto_scalarmult_curve25519_VERSION
-#define crypto_scalarmult_curve25519_tweet_BYTES 32
-#define crypto_scalarmult_curve25519_tweet_SCALARBYTES 32
+#define crypto_scalarmult_BYTES 32
+#define crypto_scalarmult_SCALARBYTES 32
 extern int crypto_scalarmult(unsigned char *,const unsigned char *,const unsigned char *);
 extern int crypto_scalarmult_base(unsigned char *,const unsigned char *);
-#define crypto_scalarmult_curve25519_tweet_VERSION "-"
-#define crypto_scalarmult_curve25519_BYTES crypto_scalarmult_curve25519_tweet_BYTES
-#define crypto_scalarmult_curve25519_SCALARBYTES crypto_scalarmult_curve25519_tweet_SCALARBYTES
-#define crypto_scalarmult_curve25519_VERSION crypto_scalarmult_curve25519_tweet_VERSION
-#define crypto_scalarmult_curve25519_IMPLEMENTATION "crypto_scalarmult/curve25519/tweet"
 
 // --- crypto_secretbox ---
 #define crypto_secretbox_PRIMITIVE "xsalsa20poly1305"
-#define crypto_secretbox_KEYBYTES crypto_secretbox_xsalsa20poly1305_KEYBYTES
-#define crypto_secretbox_NONCEBYTES crypto_secretbox_xsalsa20poly1305_NONCEBYTES
-#define crypto_secretbox_ZEROBYTES crypto_secretbox_xsalsa20poly1305_ZEROBYTES
-#define crypto_secretbox_BOXZEROBYTES crypto_secretbox_xsalsa20poly1305_BOXZEROBYTES
-#define crypto_secretbox_IMPLEMENTATION crypto_secretbox_xsalsa20poly1305_IMPLEMENTATION
-#define crypto_secretbox_VERSION crypto_secretbox_xsalsa20poly1305_VERSION
-#define crypto_secretbox_xsalsa20poly1305_tweet_KEYBYTES 32
-#define crypto_secretbox_xsalsa20poly1305_tweet_NONCEBYTES 24
-#define crypto_secretbox_xsalsa20poly1305_tweet_ZEROBYTES 32
-#define crypto_secretbox_xsalsa20poly1305_tweet_BOXZEROBYTES 16
+#define crypto_secretbox_KEYBYTES 32
+#define crypto_secretbox_NONCEBYTES 24
+#define crypto_secretbox_ZEROBYTES 32
+#define crypto_secretbox_BOXZEROBYTES 16
 extern int crypto_secretbox(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *,const unsigned char *);
 extern int crypto_secretbox_open(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *,const unsigned char *);
-#define crypto_secretbox_xsalsa20poly1305_tweet_VERSION "-"
-#define crypto_secretbox_xsalsa20poly1305_KEYBYTES crypto_secretbox_xsalsa20poly1305_tweet_KEYBYTES
-#define crypto_secretbox_xsalsa20poly1305_NONCEBYTES crypto_secretbox_xsalsa20poly1305_tweet_NONCEBYTES
-#define crypto_secretbox_xsalsa20poly1305_ZEROBYTES crypto_secretbox_xsalsa20poly1305_tweet_ZEROBYTES
-#define crypto_secretbox_xsalsa20poly1305_BOXZEROBYTES crypto_secretbox_xsalsa20poly1305_tweet_BOXZEROBYTES
-#define crypto_secretbox_xsalsa20poly1305_VERSION crypto_secretbox_xsalsa20poly1305_tweet_VERSION
-#define crypto_secretbox_xsalsa20poly1305_IMPLEMENTATION "crypto_secretbox/xsalsa20poly1305/tweet"
 
 // --- crypto_sign ---
 #define crypto_sign_PRIMITIVE "ed25519"
-#define crypto_sign_BYTES crypto_sign_ed25519_BYTES
-#define crypto_sign_PUBLICKEYBYTES crypto_sign_ed25519_PUBLICKEYBYTES
-#define crypto_sign_SECRETKEYBYTES crypto_sign_ed25519_SECRETKEYBYTES
-#define crypto_sign_IMPLEMENTATION crypto_sign_ed25519_IMPLEMENTATION
-#define crypto_sign_VERSION crypto_sign_ed25519_VERSION
-#define crypto_sign_ed25519_tweet_BYTES 64
-#define crypto_sign_ed25519_tweet_PUBLICKEYBYTES 32
-#define crypto_sign_ed25519_tweet_SECRETKEYBYTES 64
+#define crypto_sign_BYTES 64
+#define crypto_sign_PUBLICKEYBYTES 32
+#define crypto_sign_SECRETKEYBYTES 64
 extern int crypto_sign(unsigned char *,unsigned long long *,const unsigned char *,unsigned long long,const unsigned char *);
 extern int crypto_sign_open(unsigned char *,unsigned long long *,const unsigned char *,unsigned long long,const unsigned char *);
 extern int crypto_sign_keypair(unsigned char *,unsigned char *);
-#define crypto_sign_ed25519_tweet_VERSION "-"
-#define crypto_sign_ed25519_BYTES crypto_sign_ed25519_tweet_BYTES
-#define crypto_sign_ed25519_PUBLICKEYBYTES crypto_sign_ed25519_tweet_PUBLICKEYBYTES
-#define crypto_sign_ed25519_SECRETKEYBYTES crypto_sign_ed25519_tweet_SECRETKEYBYTES
-#define crypto_sign_ed25519_VERSION crypto_sign_ed25519_tweet_VERSION
-#define crypto_sign_ed25519_IMPLEMENTATION "crypto_sign/ed25519/tweet"
 
 // --- crypto_stream ---
 #define crypto_stream_PRIMITIVE "xsalsa20"
