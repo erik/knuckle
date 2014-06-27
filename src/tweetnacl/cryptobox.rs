@@ -81,11 +81,11 @@ impl CryptoBox {
 
 #[test]
 fn test_cryptobox_sanity() {
-    for i in range(0 as uint, 256) {
+    for i in range(0 as uint, 16) {
         let box1 = CryptoBox::new();
         let box2 = CryptoBox::new();
 
-        let msg = Vec::from_elem(i, i as u8);
+        let msg = Vec::from_elem(i * 4, i as u8);
 
         let (cipher, nonce) = box1.encrypt(msg.as_slice(), box2.keypair.pk);
 

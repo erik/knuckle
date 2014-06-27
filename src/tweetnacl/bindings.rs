@@ -38,6 +38,9 @@ extern "C" {
                                  k: *c_uchar) -> c_int;
 
     // --- Sign ---
+    pub fn crypto_sign_keypair(pk: *mut c_uchar,
+                               sk: *mut c_uchar) -> c_int;
+
     pub fn crypto_sign(smsg: *mut c_uchar,
                        smsg_len: *mut c_ulonglong,
                        msg: *c_uchar,

@@ -794,7 +794,7 @@ int crypto_sign_open(u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
   *mlen = -1;
   if (n < 64) return -1;
 
-  if (unpackneg(q,pk)) return -1;
+  if (unpackneg(q,pk)) return -2;
 
   FOR(i,n) m[i] = sm[i];
   FOR(i,32) m[i+32] = pk[i];
@@ -809,7 +809,7 @@ int crypto_sign_open(u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
   n -= 64;
   if (crypto_verify_32(sm, t)) {
     FOR(i,n) m[i] = 0;
-    return -1;
+    return -3;
   }
 
   FOR(i,n) m[i] = sm[i + 64];

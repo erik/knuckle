@@ -75,8 +75,8 @@ impl SecretBox {
 
 #[test]
 fn test_secretbox_sanity() {
-    for i in range(0 as uint, 256) {
-        let msg = Vec::from_elem(i, i as u8);
+    for i in range(0 as uint, 16) {
+        let msg = Vec::from_elem(i * 4, i as u8);
 
         let sb = SecretBox::new(SecretKey::from_str("some passkey"));
         let (encr, nonce) = sb.encrypt(msg.as_slice());

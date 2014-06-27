@@ -17,7 +17,7 @@ pub fn hash(msg: &[u8]) -> Vec<u8> {
 
 
 #[test]
-fn test_hash() {
+fn test_hash_sanity() {
     // corresponding to tests/hash.c, tests/hash2.cpp,
     // tests/hash3.c and tests/hash4.cpp from NaCl
     let x = [0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0xa];
