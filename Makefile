@@ -305,6 +305,7 @@ bin/:
 
 $(TARGET_LIB_DIR):
 	$(Q)mkdir -p $(TARGET_LIB_DIR)
+	$(Q)mkdir -p target/deps
 
 src/:
 	$(Q)mkdir -p src
