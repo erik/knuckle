@@ -5,7 +5,6 @@
 //! Documentation goes here.
 
 extern crate libc;
-extern crate rlibc;
 
 pub mod cryptobox;
 pub mod secretbox;

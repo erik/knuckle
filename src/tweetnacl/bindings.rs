@@ -1,4 +1,5 @@
 use libc::*;
+
 /// Rust bindings to C tweetnacl library.
 
 #[link(name = "tweetnacl", kind = "static")]

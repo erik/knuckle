@@ -1,11 +1,16 @@
 use bindings::*;
 
+static ZERO_BYTES: uint = 32;
+static NONCE_BYTES: uint = 24;
+static PUBLICKEY_BYTES: uint = 32;
+static SECRETKEY_BYTES: uint = 32;
+
 pub struct CryptoBox {
     pub keypair: Keypair,
 }
 
-pub type SecretKey = [u8, ..32];
-pub type PublicKey = [u8, ..32];
+pub type SecretKey = [u8, ..SECRETKEY_BYTES];
+pub type PublicKey = [u8, ..PUBLICKEY_BYTES];
 
 pub struct Keypair {
     pub pk: PublicKey,
@@ -15,8 +20,8 @@ pub struct Keypair {
 impl Keypair {
     pub fn new() -> Keypair {
         unsafe {
-            let mut pk = [0u8, ..32];
-            let mut sk = [0u8, ..32];
+            let mut pk = [0u8, ..PUBLICKEY_BYTES];
+            let mut sk = [0u8, ..SECRETKEY_BYTES];
 
             crypto_box_keypair(pk.as_mut_ptr(), sk.as_mut_ptr());
 
@@ -36,37 +41,61 @@ impl CryptoBox {
 
     pub fn encrypt(&self, msg: &[u8], key: PublicKey) -> (Vec<u8>, Vec<u8>) {
         unsafe {
-            let mut nonce: Vec<u8> = Vec::with_capacity(24);
-            let mut cipher: Vec<u8> = Vec::with_capacity(msg.len());
+            let mut stretched = Vec::from_elem(ZERO_BYTES, 0u8);
+            stretched.push_all(msg);
 
-            randombytes(nonce.as_mut_ptr(), 24);
-            nonce.set_len(24);
+            let mut nonce = Vec::from_elem(NONCE_BYTES, 0u8);
+            randombytes(nonce.as_mut_ptr(), NONCE_BYTES as u64);
 
-            crypto_box(cipher.as_mut_ptr(),
-                       msg.as_ptr(),
-                       msg.len() as u64,
-                       nonce.as_ptr(),
-                       key.as_ptr(),
-                       self.keypair.sk.as_ptr());
+            let mut cipher = Vec::from_elem(stretched.len(), 0u8);
 
-            cipher.set_len(msg.len());
-            (cipher, nonce)
+            match crypto_box(cipher.as_mut_ptr(),
+                             stretched.as_ptr(),
+                             stretched.len() as u64,
+                             nonce.as_ptr(),
+                             key.as_ptr(),
+                             self.keypair.sk.as_ptr()) {
+                0 => (cipher, nonce),
+                _ => fail!("crypto_box failed")
+            }
         }
     }
 
     pub fn decrypt(&self, cipher: &[u8], nonce: &[u8], key: PublicKey) -> Vec<u8> {
         unsafe {
-            let mut msg: Vec<u8> = Vec::with_capacity(cipher.len());
+            let mut msg = Vec::from_elem(cipher.len(), 0u8);
 
-            crypto_box_open(msg.as_mut_ptr(),
-                            cipher.as_ptr(),
-                            cipher.len() as u64,
-                            nonce.as_ptr(),
-                            key.as_ptr(),
-                            self.keypair.sk.as_ptr());
-
-            msg.set_len(cipher.len());
-            msg
+            match crypto_box_open(msg.as_mut_ptr(),
+                                  cipher.as_ptr(),
+                                  cipher.len() as u64,
+                                  nonce.as_ptr(),
+                                  key.as_ptr(),
+                                  self.keypair.sk.as_ptr()) {
+                0 => Vec::from_slice(msg.slice(ZERO_BYTES, msg.len())),
+                _ => fail!("crypto_box_open failed")
+            }
         }
+    }
+}
+
+
+#[test]
+fn test_cryptobox_sanity() {
+    for i in range(0 as uint, 256) {
+        let box1 = CryptoBox::new();
+        let box2 = CryptoBox::new();
+
+        let msg = Vec::from_elem(i, i as u8);
+
+        let (cipher, nonce) = box1.encrypt(msg.as_slice(), box2.keypair.pk);
+
+        print!("enc:\t{}\nnonce:\t{}\n", cipher, nonce);
+
+        let plain = box2.decrypt(cipher.as_slice(), nonce.as_slice(), box1.keypair.pk);
+
+        print!("plain:\t{}\n", plain);
+        print!("msg:\t{}\n", msg);
+
+        assert!(msg == plain);
     }
 }
