@@ -4,8 +4,8 @@ static PUBKEY_BYTES: uint = 32;
 static SECKEY_BYTES: uint = 64;
 static SIGN_BYTES: uint = 64;
 
-pub type SecretKey = [u8, ..SECKEY_BYTES];
-pub type PublicKey = [u8, ..PUBKEY_BYTES];
+pub struct SecretKey ([u8, ..SECKEY_BYTES]);
+pub struct PublicKey ([u8, ..PUBKEY_BYTES]);
 
 pub struct SignKey {
     pub sk: SecretKey,
@@ -20,7 +20,7 @@ impl SignKey {
 
             crypto_sign_keypair(pk.as_mut_ptr(), sk.as_mut_ptr());
 
-            SignKey { pk: pk, sk: sk }
+            SignKey { pk: PublicKey(pk), sk: SecretKey(sk) }
         }
 
     }
@@ -44,11 +44,13 @@ impl Signer {
             let mut signed: Vec<u8> = Vec::from_elem(msg.len() + SIGN_BYTES, 0u8);
             let mut signed_len: u64 = 0;
 
+            let SecretKey(sk) = self.keypair.sk;
+
             crypto_sign(signed.as_mut_ptr(),
                         &mut signed_len,
                         msg.as_ptr(),
                         msg.len() as u64,
-                        self.keypair.sk.as_ptr());
+                        sk.as_ptr());
 
             signed.set_len(signed_len as uint);
             signed
@@ -59,6 +61,8 @@ impl Signer {
         unsafe {
             let mut msg: Vec<u8> = Vec::from_elem(smsg.len(), 0u8);
             let mut msg_len: u64 = 0;
+
+            let PublicKey(pk) = pk;
 
             match crypto_sign_open(msg.as_mut_ptr(),
                                    &mut msg_len,
@@ -83,7 +87,10 @@ fn test_sign_sanity() {
         let signer = Signer::new();
         let msg = Vec::from_elem(i * 4, i as u8);
 
-        println!("sk: {}\npk: {}", signer.keypair.sk.as_slice(), signer.keypair.pk.as_slice());
+        let SecretKey(sk) = signer.keypair.sk;
+        let PublicKey(pk) = signer.keypair.pk;
+
+        println!("sk: {}\npk: {}", sk.as_slice(), pk.as_slice());
 
         let sig = signer.sign(msg.as_slice());
         let desig = signer.verify(sig.as_slice(), signer.keypair.pk);

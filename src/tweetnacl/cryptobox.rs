@@ -9,8 +9,8 @@ pub struct CryptoBox {
     pub keypair: Keypair,
 }
 
-pub type SecretKey = [u8, ..SECRETKEY_BYTES];
-pub type PublicKey = [u8, ..PUBLICKEY_BYTES];
+pub struct SecretKey ([u8, ..SECRETKEY_BYTES]);
+pub struct PublicKey ([u8, ..PUBLICKEY_BYTES]);
 
 pub struct Keypair {
     pub pk: PublicKey,
@@ -25,7 +25,7 @@ impl Keypair {
 
             crypto_box_keypair(pk.as_mut_ptr(), sk.as_mut_ptr());
 
-            Keypair { pk: pk, sk: sk }
+            Keypair { pk: PublicKey(pk), sk: SecretKey(sk) }
         }
     }
 }
@@ -39,38 +39,43 @@ impl CryptoBox {
         CryptoBox { keypair: key }
     }
 
-    pub fn encrypt(&self, msg: &[u8], key: PublicKey) -> (Vec<u8>, Vec<u8>) {
+    pub fn encrypt(&self, msg: &[u8], recvKey: PublicKey) -> (Vec<u8>, Vec<u8>) {
         unsafe {
             let mut stretched = Vec::from_elem(ZERO_BYTES, 0u8);
             stretched.push_all(msg);
+
+            let SecretKey(sk) = self.keypair.sk;
+            let PublicKey(pk) = recvKey;
 
             let mut nonce = Vec::from_elem(NONCE_BYTES, 0u8);
             randombytes(nonce.as_mut_ptr(), NONCE_BYTES as u64);
 
             let mut cipher = Vec::from_elem(stretched.len(), 0u8);
-
             match crypto_box(cipher.as_mut_ptr(),
                              stretched.as_ptr(),
                              stretched.len() as u64,
                              nonce.as_ptr(),
-                             key.as_ptr(),
-                             self.keypair.sk.as_ptr()) {
+                             pk.as_ptr(),
+                             sk.as_ptr()) {
                 0 => (cipher, nonce),
                 _ => fail!("crypto_box failed")
             }
         }
     }
 
-    pub fn decrypt(&self, cipher: &[u8], nonce: &[u8], key: PublicKey) -> Vec<u8> {
+    pub fn decrypt(&self, cipher: &[u8], nonce: &[u8], sendKey: PublicKey) -> Vec<u8> {
         unsafe {
             let mut msg = Vec::from_elem(cipher.len(), 0u8);
+
+            let SecretKey(sk) = self.keypair.sk;
+            let PublicKey(pk) = sendKey;
 
             match crypto_box_open(msg.as_mut_ptr(),
                                   cipher.as_ptr(),
                                   cipher.len() as u64,
                                   nonce.as_ptr(),
-                                  key.as_ptr(),
-                                  self.keypair.sk.as_ptr()) {
+                                  pk.as_ptr(),
+                                  sk.as_ptr()) {
                 0 => Vec::from_slice(msg.slice(ZERO_BYTES, msg.len())),
                 _ => fail!("crypto_box_open failed")
             }
