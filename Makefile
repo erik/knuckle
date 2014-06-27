@@ -283,9 +283,10 @@ bench-internal: test-internal
 lib: tweetnacl rlib dylib
 	$(Q)echo "--- Type 'make test' to test library"
 
-tweetnacl: src/tweetnacl.c src/tweetnacl.h
+tweetnacl: target-dir src/tweetnacl.c src/tweetnacl.h
 	$(Q)cc -c -Isrc/ src/tweetnacl.c -o $(TWEETNACL_LIB:.a=.o)
 	$(Q)ar rcs $(TWEETNACL_LIB) $(TWEETNACL_LIB:.a=.o)
+	$(Q)cp $(TWEETNACL_LIB) target/deps/
 
 rlib: $(RLIB)
 

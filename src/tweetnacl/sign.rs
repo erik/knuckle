@@ -22,7 +22,6 @@ impl SignKey {
 
             SignKey { pk: PublicKey(pk), sk: SecretKey(sk) }
         }
-
     }
 }
 

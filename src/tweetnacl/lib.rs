@@ -1,4 +1,9 @@
-#![crate_id = ""]
+#![crate_id = "tweetnacl#tweetnacl"]
+#![crate_type = "lib"]
+#![desc = "TODO: write me"]
+#![comment = "TODO: write me"]
+#![license = "mit"]
+
 #![feature(globs)]
 //#![deny(missing_doc)]
 
