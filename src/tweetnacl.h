@@ -5,8 +5,8 @@
 #define crypto_auth_PRIMITIVE "hmacsha512256"
 #define crypto_auth_BYTES 32
 #define crypto_auth_KEYBYTES 32
-extern int crypto_auth_hmacsha512256_tweet(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *);
-extern int crypto_auth_hmacsha512256_tweet_verify(const unsigned char *,const unsigned char *,unsigned long long,const unsigned char *);
+extern int crypto_auth(unsigned char *,const unsigned char *,unsigned long long,const unsigned char *);
+extern int crypto_auth_verify(const unsigned char *,const unsigned char *,unsigned long long,const unsigned char *);
 
 // --- crypto_box ---
 #define crypto_box_PRIMITIVE "curve25519xsalsa20poly1305"

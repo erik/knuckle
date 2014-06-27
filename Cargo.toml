@@ -3,7 +3,7 @@ name = "tweetnacl.rs"
 version = "0.0.0"
 readme = "README.md"
 authors = ["Erik Price"]
-build = "make target-dir tweetnacl"
+build = "make tweetnacl"
 
 [[lib]]
 

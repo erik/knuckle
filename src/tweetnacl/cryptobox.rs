@@ -12,6 +12,19 @@ pub struct CryptoBox {
 pub struct SecretKey ([u8, ..SECRETKEY_BYTES]);
 pub struct PublicKey ([u8, ..PUBLICKEY_BYTES]);
 
+impl PublicKey {
+    pub fn from_secret_key(key: SecretKey) -> PublicKey {
+        unsafe {
+            let mut pk = [0u8, ..PUBLICKEY_BYTES];
+            let SecretKey(sk) = key;
+
+            crypto_scalarmult_base(pk.as_mut_ptr(), sk.as_ptr());
+
+            PublicKey(pk)
+        }
+    }
+}
+
 pub struct Keypair {
     pub pk: PublicKey,
     pub sk: SecretKey
@@ -102,5 +115,19 @@ fn test_cryptobox_sanity() {
         print!("msg:\t{}\n", msg);
 
         assert!(msg == plain);
+    }
+}
+
+
+#[test]
+fn test_cryptobox_pubkey_from_seckey() {
+    for _ in range(0i, 16) {
+        let key = Keypair::new();
+        let pubkey = PublicKey::from_secret_key(key.sk);
+
+        let PublicKey(k1) = pubkey;
+        let PublicKey(k2) = key.pk;
+
+        assert!(k1 == k2);
     }
 }

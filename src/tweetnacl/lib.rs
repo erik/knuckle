@@ -18,4 +18,5 @@ pub mod sign;
 pub mod hash;
 pub mod auth;
 
+#[allow(dead_code)]
 mod bindings;

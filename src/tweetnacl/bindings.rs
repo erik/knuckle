@@ -7,6 +7,12 @@ extern "C" {
     // --- Utilities ---
     pub fn randombytes(ptr: *mut c_uchar, sz: u64);
 
+    pub fn crypto_scalarmult(result: *mut c_uchar,
+                             n: *c_uchar,
+                             p: *c_uchar) -> c_int;
+
+    pub fn crypto_scalarmult_base(result: *mut c_uchar, n: *c_uchar) -> c_int;
+
     // --- Crypto box ---
     pub fn crypto_box_keypair(pk: *mut c_uchar, sk: *mut c_uchar) -> c_int;
 
