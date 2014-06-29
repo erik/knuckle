@@ -1,8 +1,13 @@
+//!
+//! Contains a simple interface to a strong cryptographic hash
+//! function.
+
 use bindings::*;
 
+/// Byte size of the hashed output.
 static HASH_BYTES: uint = 64;
 
-
+/// Hash a given message.
 pub fn hash(msg: &[u8]) -> Vec<u8> {
     unsafe {
         let mut hash: Vec<u8> = Vec::with_capacity(HASH_BYTES);

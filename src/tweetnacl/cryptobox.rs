@@ -1,18 +1,33 @@
+//!
+//! These are black boxes to perform authenticated asymmetric
+//! cryptography.
+//!
+//! TODO: Document me
+
 use bindings::*;
 
-static ZERO_BYTES: uint = 32;
-static NONCE_BYTES: uint = 24;
-static PUBLICKEY_BYTES: uint = 32;
-static SECRETKEY_BYTES: uint = 32;
+/// Size of zero padding used in encrypted messages.
+pub static ZERO_BYTES: uint = 32;
+/// Size of encrypted message's nonce value.
+pub static NONCE_BYTES: uint = 24;
+/// Size of public key.
+pub static PUBLICKEY_BYTES: uint = 32;
+/// Size of secret key.
+pub static SECRETKEY_BYTES: uint = 32;
 
+/// TODO: document me
 pub struct CryptoBox {
     pub keypair: Keypair,
 }
 
+/// A secret key used by CryptoBox
 pub struct SecretKey ([u8, ..SECRETKEY_BYTES]);
+
+/// A public key used by CryptoBox
 pub struct PublicKey ([u8, ..PUBLICKEY_BYTES]);
 
 impl PublicKey {
+    /// Generate a public key matching a given secret key.
     pub fn from_secret_key(key: SecretKey) -> PublicKey {
         unsafe {
             let mut pk = [0u8, ..PUBLICKEY_BYTES];
@@ -25,12 +40,16 @@ impl PublicKey {
     }
 }
 
+/// A asymmetric keypair containing matching public and private keys.
 pub struct Keypair {
+    /// Public key
     pub pk: PublicKey,
+    /// Private key
     pub sk: SecretKey
 }
 
 impl Keypair {
+    /// Generate a random matching public and private key.
     pub fn new() -> Keypair {
         unsafe {
             let mut pk = [0u8, ..PUBLICKEY_BYTES];
@@ -44,14 +63,18 @@ impl Keypair {
 }
 
 impl CryptoBox {
+    /// Generate a new CryptoBox using a random keypair
     pub fn new() -> CryptoBox {
         CryptoBox { keypair: Keypair::new() }
     }
 
+    /// Generate a new CryptoBox using an existing keypair.
     pub fn new_with_key(key: Keypair) -> CryptoBox {
         CryptoBox { keypair: key }
     }
 
+    /// Sign a message using this box's secret key and encrypt the
+    /// message to the given recipient's PublicKey.
     pub fn encrypt(&self, msg: &[u8], recvKey: PublicKey) -> (Vec<u8>, Vec<u8>) {
         unsafe {
             let mut stretched = Vec::from_elem(ZERO_BYTES, 0u8);
