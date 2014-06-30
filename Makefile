@@ -291,7 +291,7 @@ lib: tweetnacl rlib dylib
 	$(Q)echo "--- Type 'make test' to test library"
 
 tweetnacl: target-dir src/tweetnacl.c src/tweetnacl.h
-	$(Q)cc -c -Isrc/ src/tweetnacl.c -o $(TWEETNACL_LIB:.a=.o)
+	$(Q)cc -c -fPIC -Isrc/ src/tweetnacl.c -o $(TWEETNACL_LIB:.a=.o)
 	$(Q)ar rcs $(TWEETNACL_LIB) $(TWEETNACL_LIB:.a=.o)
 
 rlib: $(RLIB)
