@@ -76,7 +76,10 @@ impl SecretKey {
 
     /// Using this box's secret key, decrypt the given ciphertext into
     /// plain text.
-    pub fn decrypt(&self, msg: &SecretMsg) -> Vec<u8> {
+    ///
+    /// If the cipher text fails to conform to the MAC (message was
+    /// tampered with or corrupted), then None will be returned instead.
+    pub fn decrypt(&self, msg: &SecretMsg) -> Option<Vec<u8>> {
         let &SecretMsg { ref nonce, ref cipher } = msg;
 
         let &SecretKey(sk) = self;
@@ -84,14 +87,13 @@ impl SecretKey {
         unsafe {
             let mut msg = Vec::from_elem(cipher.len(), 0u8);
 
-            // TODO: Error handling, this can fail in non-fatal ways
-            //       (MAC validation fails etc.)
             match crypto_secretbox_open(msg.as_mut_ptr(),
                                         cipher.as_ptr(),
                                         cipher.len() as u64,
                                         nonce.as_ptr(),
                                         sk.as_ptr()) {
-                0 => Vec::from_slice(msg.slice(ZERO_BYTES, msg.len())),
+                0 => Some(Vec::from_slice(msg.slice(ZERO_BYTES, msg.len()))),
+                -2 => None,
                 _ => fail!("crypto_secretbox_open failed")
             }
         }
@@ -109,11 +111,14 @@ fn test_secretbox_sanity() {
 
         println!("enc:\t{}\nnonce:\t{}", cipher, Vec::from_slice(nonce));
 
-        let decr = key.decrypt(&SecretMsg { nonce: nonce, cipher: cipher });
+        let decr_opt = key.decrypt(&SecretMsg { nonce: nonce, cipher: cipher });
 
+        assert!(decr_opt.is_some());
+
+        let decr = decr_opt.unwrap();
         println!("dec:\t{}", decr);
 
-        assert!(decr == msg);
+        assert!(msg == decr);
     }
 }
 
@@ -131,4 +136,31 @@ fn test_secretbox_uniqueness() {
     assert!(c1 != c2);
     assert!(c1 != msg);
     assert!(c2 != msg);
+}
+
+#[test]
+fn test_secretbox_mac_sanity() {
+
+    let msg = Vec::from_elem(0xff, 0xff as u8);
+
+    let key = SecretKey::from_str("some secret key");
+
+    let SecretMsg { nonce, cipher } = key.encrypt(msg.as_slice());
+
+    let mut ciphers = [cipher.clone(), cipher.clone(), cipher.clone()];
+
+    // tamper with the cipher text in various ways
+    ciphers[0].push(0u8);
+    ciphers[1].pop();
+
+    let last = ciphers[2].pop().unwrap();
+    ciphers[2].push(last + 1);
+
+    for c in ciphers.iter() {
+        let decr = key.decrypt(&SecretMsg { nonce: nonce, cipher: c.clone() });
+
+        println!("cipher:\t{}\ndecr:\t{}", c, decr);
+        assert!(decr.is_none());
+    }
+
 }

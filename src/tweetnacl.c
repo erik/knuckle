@@ -267,7 +267,7 @@ int crypto_secretbox_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *k)
   u8 x[32];
   if (d < 32) return -1;
   crypto_stream(x,32,n,k);
-  if (crypto_onetimeauth_verify(c + 16,c + 32,d - 32,x) != 0) return -1;
+  if (crypto_onetimeauth_verify(c + 16,c + 32,d - 32,x) != 0) return -2;
   crypto_stream_xor(m,c,d,n,k);
   FOR(i,32) m[i] = 0;
   return 0;
