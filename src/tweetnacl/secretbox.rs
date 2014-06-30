@@ -1,18 +1,30 @@
+//! The `secretbox` module symmetrically encrypts given plaintext and
+//! then uses a one time authenticator to ensure tamper-resistance.
+//!
+//! In other words, this uses an encrypt-then-MAC scheme.
+//!
+//! TODO: document me.
+
 use bindings::*;
 use std::slice::bytes::copy_memory;
 
-static KEY_BYTES: uint = 32;
-static NONCE_BYTES: uint = 24;
-static ZERO_BYTES: uint = 32;
+/// Size of shared secret key used for symmetric encryption.
+pub static KEY_BYTES: uint = 32;
+/// Size of the nonce value.
+pub static NONCE_BYTES: uint = 24;
+/// Size of the zero padding applied to each message.
+pub static ZERO_BYTES: uint = 32;
 
-
+/// Shared secret key. Must be `<= KEY_BYTES` bytes long.
 pub struct SecretKey ([u8, ..KEY_BYTES]);
 
 impl SecretKey {
+    /// Generate a secret key from the bytes of a given string.
     pub fn from_str(str: &str) -> SecretKey {
         SecretKey::from_slice(str.as_bytes())
     }
 
+    /// Generate a secret key from a slice (turn a slice into a sized slice).
     pub fn from_slice(slice: &[u8]) -> SecretKey {
         assert!(slice.len() <= KEY_BYTES);
 
@@ -23,20 +35,30 @@ impl SecretKey {
     }
 }
 
+
+/// Encapsulates both the nonce value and cipher text returned by `encrypt`.
 pub struct SecretMsg {
     pub nonce: [u8, ..NONCE_BYTES],
     pub cipher: Vec<u8>
 }
 
+
+/// TODO: Document me
 pub struct SecretBox {
     sk: SecretKey
 }
 
+
 impl SecretBox {
+    /// Create a new SecretBox with the provided key
     pub fn new(sk: SecretKey) -> SecretBox {
         SecretBox { sk: sk }
     }
 
+    /// Using this box's secret key, symmetrically encrypt the given message.
+    ///
+    /// A random nonce value will be securely generated and returned
+    /// as part of the response.
     pub fn encrypt(&self, msg: &[u8]) -> SecretMsg {
         unsafe {
             let mut stretched: Vec<u8> = Vec::from_elem(ZERO_BYTES, 0u8);
@@ -49,6 +71,7 @@ impl SecretBox {
 
             let mut cipher = Vec::from_elem(stretched.len(), 0u8);
 
+            // TODO: Better error handling
             match crypto_secretbox(cipher.as_mut_ptr(),
                                    stretched.as_ptr(),
                                    stretched.len() as u64,
@@ -60,6 +83,8 @@ impl SecretBox {
         }
     }
 
+    /// Using this box's secret key, decrypt the given ciphertext into
+    /// plain text.
     pub fn decrypt(&self, msg: &SecretMsg) -> Vec<u8> {
         let &SecretMsg { ref nonce, ref cipher } = msg;
 
@@ -67,6 +92,8 @@ impl SecretBox {
             let mut msg = Vec::from_elem(cipher.len(), 0u8);
             let SecretKey(sk) = self.sk;
 
+            // TODO: Error handling, this can fail in non-fatal ways
+            //       (MAC validation fails etc.)
             match crypto_secretbox_open(msg.as_mut_ptr(),
                                         cipher.as_ptr(),
                                         cipher.len() as u64,
@@ -86,7 +113,7 @@ fn test_secretbox_sanity() {
         let msg = Vec::from_elem(i * 4, i as u8);
 
         let sb = SecretBox::new(SecretKey::from_str("some secret key"));
-        let SecretMsg { nonce, cipher } = sb.encrypt(msg.as_slice());
+        let SecretMsg { nonce, mut cipher } = sb.encrypt(msg.as_slice());
 
         println!("enc:\t{}\nnonce:\t{}", cipher, Vec::from_slice(nonce));
 
