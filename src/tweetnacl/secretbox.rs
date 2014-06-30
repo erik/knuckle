@@ -4,6 +4,20 @@
 //!
 //! In other words, this uses an encrypt-then-MAC scheme.
 //!
+//! ## Usage
+//!
+//! ```rust{.example}
+//! use tweetnacl::secretbox::{SecretKey, SecretMsg};
+//!
+//! let key = SecretKey::from_str("some secret key");
+//! let enc: SecretMsg = key.encrypt("my secret msg".as_bytes());
+//!
+//! // ...
+//!
+//! let decr_opt = key.decrypt(&enc);
+//! println!("decrypted: {}", decr_opt.unwrap());
+//! ```
+//!
 //! TODO: document me.
 
 use bindings::*;

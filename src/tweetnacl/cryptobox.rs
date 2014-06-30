@@ -3,6 +3,21 @@
 //! cryptography.
 //!
 //! TODO: Document me
+//!
+//! ## Usage
+//! ```rust{.example}
+//! use tweetnacl::cryptobox::CryptoBox;
+//!
+//! let box1 = CryptoBox::new();
+//! let box2 = CryptoBox::new();
+//!
+//! let msg = "my secret message";
+//!
+//! let (cipher, nonce) = box1.encrypt(msg.as_bytes(), box2.keypair.pk);
+//!
+//! let plain = box2.decrypt(cipher.as_slice(), nonce.as_slice(), box1.keypair.pk);
+//! assert!(plain == Vec::from_slice(msg.as_bytes()));
+//! ```
 
 use bindings::*;
 
@@ -106,6 +121,7 @@ impl CryptoBox {
             let SecretKey(sk) = self.keypair.sk;
             let PublicKey(pk) = sendKey;
 
+            // TODO: error handling.
             match crypto_box_open(msg.as_mut_ptr(),
                                   cipher.as_ptr(),
                                   cipher.len() as u64,

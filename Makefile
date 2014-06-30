@@ -239,6 +239,10 @@ doc: $(SOURCE_FILES) | src/
 	$(Q)$(RUSTDOC) $(LIB_ENTRY_FILE) -L "target/$(TARGET)/lib" \
 	&& echo "--- Built documentation"
 
+doctest:
+	$(Q)$(RUSTDOC) --test $(LIB_ENTRY_FILE) -L "target/$(TARGET)/lib" \
+&& echo "--- Ran documentation tests"
+
 run: exe
 	$(Q)cd bin/ \
 	&& ./main
@@ -252,7 +256,7 @@ bin/main: $(SOURCE_FILES) | bin/ $(EXE_ENTRY_FILE)
 	&& echo "--- Built executable" \
 	&& echo "--- Type 'make run' to run executable"
 
-test: tweetnacl test-internal test-external
+test: tweetnacl test-internal test-external doctest
 	$(Q)echo "--- Internal tests succeeded" \
 	&& echo "--- External tests succeeded"
 
