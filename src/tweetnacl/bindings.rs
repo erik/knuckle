@@ -85,7 +85,7 @@ extern "C" {
                             pk: *const c_uchar) -> c_int;
 
     // --- Hash ---
-    /// Hash.
+    /// Hash a message
     pub fn crypto_hash(hash: *mut c_uchar,
                        msg: *const c_uchar,
                        len: u64) -> c_int;
