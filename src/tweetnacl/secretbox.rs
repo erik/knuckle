@@ -1,3 +1,4 @@
+//!
 //! The `secretbox` module symmetrically encrypts given plaintext and
 //! then uses a one time authenticator to ensure tamper-resistance.
 //!
@@ -15,7 +16,18 @@ pub static NONCE_BYTES: uint = 24;
 /// Size of the zero padding applied to each message.
 pub static ZERO_BYTES: uint = 32;
 
+
+/// Encapsulates both the nonce value and cipher text returned by `encrypt`.
+pub struct SecretMsg {
+    /// Nonce value used for this ciphertext.
+    pub nonce: [u8, ..NONCE_BYTES],
+    pub cipher: Vec<u8>
+}
+
+
 /// Shared secret key. Must be `<= KEY_BYTES` bytes long.
+///
+/// This struct wraps access to encrypting and decrypting messages.
 pub struct SecretKey ([u8, ..KEY_BYTES]);
 
 impl SecretKey {
@@ -33,29 +45,8 @@ impl SecretKey {
 
         SecretKey(sized)
     }
-}
 
-
-/// Encapsulates both the nonce value and cipher text returned by `encrypt`.
-pub struct SecretMsg {
-    pub nonce: [u8, ..NONCE_BYTES],
-    pub cipher: Vec<u8>
-}
-
-
-/// TODO: Document me
-pub struct SecretBox {
-    sk: SecretKey
-}
-
-
-impl SecretBox {
-    /// Create a new SecretBox with the provided key
-    pub fn new(sk: SecretKey) -> SecretBox {
-        SecretBox { sk: sk }
-    }
-
-    /// Using this box's secret key, symmetrically encrypt the given message.
+    /// Using this secret key, symmetrically encrypt the given message.
     ///
     /// A random nonce value will be securely generated and returned
     /// as part of the response.
@@ -67,9 +58,9 @@ impl SecretBox {
             let mut nonce = [0u8, ..NONCE_BYTES];
             randombytes(nonce.as_mut_ptr(), NONCE_BYTES as u64);
 
-            let SecretKey(sk) = self.sk;
-
             let mut cipher = Vec::from_elem(stretched.len(), 0u8);
+
+            let &SecretKey(sk) = self;
 
             // TODO: Better error handling
             match crypto_secretbox(cipher.as_mut_ptr(),
@@ -88,9 +79,10 @@ impl SecretBox {
     pub fn decrypt(&self, msg: &SecretMsg) -> Vec<u8> {
         let &SecretMsg { ref nonce, ref cipher } = msg;
 
+        let &SecretKey(sk) = self;
+
         unsafe {
             let mut msg = Vec::from_elem(cipher.len(), 0u8);
-            let SecretKey(sk) = self.sk;
 
             // TODO: Error handling, this can fail in non-fatal ways
             //       (MAC validation fails etc.)
@@ -112,12 +104,12 @@ fn test_secretbox_sanity() {
     for i in range(0 as uint, 16) {
         let msg = Vec::from_elem(i * 4, i as u8);
 
-        let sb = SecretBox::new(SecretKey::from_str("some secret key"));
-        let SecretMsg { nonce, mut cipher } = sb.encrypt(msg.as_slice());
+        let key = SecretKey::from_str("some secret key");
+        let SecretMsg { nonce, cipher } = key.encrypt(msg.as_slice());
 
         println!("enc:\t{}\nnonce:\t{}", cipher, Vec::from_slice(nonce));
 
-        let decr = sb.decrypt(&SecretMsg { nonce: nonce, cipher: cipher });
+        let decr = key.decrypt(&SecretMsg { nonce: nonce, cipher: cipher });
 
         println!("dec:\t{}", decr);
 
@@ -129,11 +121,11 @@ fn test_secretbox_sanity() {
 fn test_secretbox_uniqueness() {
     let msg = Vec::from_elem(128, 0x53u8);
 
-    let box1 = SecretBox::new(SecretKey::from_str("1"));
-    let box2 = SecretBox::new(SecretKey::from_str(""));
+    let key1 = SecretKey::from_str("1");
+    let key2 = SecretKey::from_str("");
 
-    let SecretMsg { nonce: n1, cipher: c1 } = box1.encrypt(msg.as_slice());
-    let SecretMsg { nonce: n2, cipher: c2 } = box2.encrypt(msg.as_slice());
+    let SecretMsg { nonce: n1, cipher: c1 } = key1.encrypt(msg.as_slice());
+    let SecretMsg { nonce: n2, cipher: c2 } = key2.encrypt(msg.as_slice());
 
     assert!(n1 != n2);
     assert!(c1 != c2);
