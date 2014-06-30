@@ -1,8 +1,11 @@
+//!
+//! TODO: document me
+
 use bindings::*;
 
-static PUBKEY_BYTES: uint = 32;
-static SECKEY_BYTES: uint = 64;
-static SIGN_BYTES: uint = 64;
+pub static PUBKEY_BYTES: uint = 32;
+pub static SECKEY_BYTES: uint = 64;
+pub static SIGN_BYTES: uint = 64;
 
 pub struct SecretKey ([u8, ..SECKEY_BYTES]);
 pub struct PublicKey ([u8, ..PUBKEY_BYTES]);

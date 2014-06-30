@@ -1,5 +1,5 @@
-static KEY_BYTES: uint = 32;
-static NONCE_BYTES: uint = 8;
+pub static KEY_BYTES: uint = 32;
+// static NONCE_BYTES: uint = 8;
 
 pub type SecretKey = [u8, ..KEY_BYTES];
 
