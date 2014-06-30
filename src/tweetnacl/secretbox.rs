@@ -65,16 +65,15 @@ impl SecretKey {
     /// A random nonce value will be securely generated and returned
     /// as part of the response.
     pub fn encrypt(&self, msg: &[u8]) -> SecretMsg {
+        let mut stretched: Vec<u8> = Vec::from_elem(ZERO_BYTES, 0u8);
+        stretched.push_all(msg);
+
+        let mut nonce = [0u8, ..NONCE_BYTES];
+        let mut cipher = Vec::from_elem(stretched.len(), 0u8);
+        let &SecretKey(sk) = self;
+
         unsafe {
-            let mut stretched: Vec<u8> = Vec::from_elem(ZERO_BYTES, 0u8);
-            stretched.push_all(msg);
-
-            let mut nonce = [0u8, ..NONCE_BYTES];
             randombytes(nonce.as_mut_ptr(), NONCE_BYTES as u64);
-
-            let mut cipher = Vec::from_elem(stretched.len(), 0u8);
-
-            let &SecretKey(sk) = self;
 
             // TODO: Better error handling
             match crypto_secretbox(cipher.as_mut_ptr(),
@@ -94,19 +93,16 @@ impl SecretKey {
     /// If the cipher text fails to conform to the MAC (message was
     /// tampered with or corrupted), then None will be returned instead.
     pub fn decrypt(&self, msg: &SecretMsg) -> Option<Vec<u8>> {
-        let &SecretMsg { ref nonce, ref cipher } = msg;
-
         let &SecretKey(sk) = self;
+        let mut plaintext = Vec::from_elem(msg.cipher.len(), 0u8);
 
         unsafe {
-            let mut msg = Vec::from_elem(cipher.len(), 0u8);
-
-            match crypto_secretbox_open(msg.as_mut_ptr(),
-                                        cipher.as_ptr(),
-                                        cipher.len() as u64,
-                                        nonce.as_ptr(),
+            match crypto_secretbox_open(plaintext.as_mut_ptr(),
+                                        msg.cipher.as_ptr(),
+                                        msg.cipher.len() as u64,
+                                        msg.nonce.as_ptr(),
                                         sk.as_ptr()) {
-                0 => Some(Vec::from_slice(msg.slice(ZERO_BYTES, msg.len()))),
+                0 => Some(Vec::from_slice(plaintext.slice(ZERO_BYTES, plaintext.len()))),
                 -2 => None,
                 _ => fail!("crypto_secretbox_open failed")
             }

@@ -14,14 +14,14 @@ pub struct SignKey {
 
 impl SignKey {
     pub fn new() -> SignKey {
+        let mut pk = [0u8, ..PUBKEY_BYTES];
+        let mut sk = [0u8, ..SECKEY_BYTES];
+
         unsafe {
-            let mut pk = [0u8, ..PUBKEY_BYTES];
-            let mut sk = [0u8, ..SECKEY_BYTES];
-
             crypto_sign_keypair(pk.as_mut_ptr(), sk.as_mut_ptr());
-
-            SignKey { pk: PublicKey(pk), sk: SecretKey(sk) }
         }
+
+        SignKey { pk: PublicKey(pk), sk: SecretKey(sk) }
     }
 }
 
@@ -39,12 +39,12 @@ impl Signer {
     }
 
     pub fn sign(&self, msg: &[u8]) -> Vec<u8> {
+        let mut signed: Vec<u8> = Vec::from_elem(msg.len() + SIGN_BYTES, 0u8);
+        let mut signed_len: u64 = 0;
+
+        let SecretKey(sk) = self.keypair.sk;
+
         unsafe {
-            let mut signed: Vec<u8> = Vec::from_elem(msg.len() + SIGN_BYTES, 0u8);
-            let mut signed_len: u64 = 0;
-
-            let SecretKey(sk) = self.keypair.sk;
-
             crypto_sign(signed.as_mut_ptr(),
                         &mut signed_len,
                         msg.as_ptr(),
@@ -52,17 +52,18 @@ impl Signer {
                         sk.as_ptr());
 
             signed.set_len(signed_len as uint);
-            signed
         }
+
+        signed
     }
 
     pub fn verify(&self, smsg: &[u8], pk: PublicKey) -> Option<Vec<u8>> {
+        let mut msg: Vec<u8> = Vec::from_elem(smsg.len(), 0u8);
+        let mut msg_len: u64 = 0;
+
+        let PublicKey(pk) = pk;
+
         unsafe {
-            let mut msg: Vec<u8> = Vec::from_elem(smsg.len(), 0u8);
-            let mut msg_len: u64 = 0;
-
-            let PublicKey(pk) = pk;
-
             match crypto_sign_open(msg.as_mut_ptr(),
                                    &mut msg_len,
                                    smsg.as_ptr(),

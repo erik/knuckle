@@ -9,13 +9,13 @@ static HASH_BYTES: uint = 64;
 
 /// Hash a given message.
 pub fn hash(msg: &[u8]) -> [u8, ..HASH_BYTES] {
+    let mut hash = [0u8, ..HASH_BYTES];
+
     unsafe {
-        let mut hash = [0u8, ..HASH_BYTES];
-
         crypto_hash(hash.as_mut_ptr(), msg.as_ptr(), msg.len() as u64);
-
-        hash
     }
+
+    hash
 }
 
 

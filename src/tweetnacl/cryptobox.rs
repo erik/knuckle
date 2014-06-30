@@ -44,14 +44,14 @@ pub struct PublicKey ([u8, ..PUBLICKEY_BYTES]);
 impl PublicKey {
     /// Generate a public key matching a given secret key.
     pub fn from_secret_key(key: SecretKey) -> PublicKey {
+        let mut pk = [0u8, ..PUBLICKEY_BYTES];
+        let SecretKey(sk) = key;
+
         unsafe {
-            let mut pk = [0u8, ..PUBLICKEY_BYTES];
-            let SecretKey(sk) = key;
-
             crypto_scalarmult_base(pk.as_mut_ptr(), sk.as_ptr());
-
-            PublicKey(pk)
         }
+
+        PublicKey(pk)
     }
 }
 
@@ -66,10 +66,10 @@ pub struct Keypair {
 impl Keypair {
     /// Generate a random matching public and private key.
     pub fn new() -> Keypair {
-        unsafe {
-            let mut pk = [0u8, ..PUBLICKEY_BYTES];
-            let mut sk = [0u8, ..SECRETKEY_BYTES];
+        let mut pk = [0u8, ..PUBLICKEY_BYTES];
+        let mut sk = [0u8, ..SECRETKEY_BYTES];
 
+        unsafe {
             crypto_box_keypair(pk.as_mut_ptr(), sk.as_mut_ptr());
 
             Keypair { pk: PublicKey(pk), sk: SecretKey(sk) }
@@ -91,17 +91,18 @@ impl CryptoBox {
     /// Sign a message using this box's secret key and encrypt the
     /// message to the given recipient's PublicKey.
     pub fn encrypt(&self, msg: &[u8], recvKey: PublicKey) -> (Vec<u8>, Vec<u8>) {
+        let mut stretched = Vec::from_elem(ZERO_BYTES, 0u8);
+        stretched.push_all(msg);
+
+        let SecretKey(sk) = self.keypair.sk;
+        let PublicKey(pk) = recvKey;
+
+        let mut nonce = Vec::from_elem(NONCE_BYTES, 0u8);
+        let mut cipher = Vec::from_elem(stretched.len(), 0u8);
+
         unsafe {
-            let mut stretched = Vec::from_elem(ZERO_BYTES, 0u8);
-            stretched.push_all(msg);
-
-            let SecretKey(sk) = self.keypair.sk;
-            let PublicKey(pk) = recvKey;
-
-            let mut nonce = Vec::from_elem(NONCE_BYTES, 0u8);
             randombytes(nonce.as_mut_ptr(), NONCE_BYTES as u64);
 
-            let mut cipher = Vec::from_elem(stretched.len(), 0u8);
             match crypto_box(cipher.as_mut_ptr(),
                              stretched.as_ptr(),
                              stretched.len() as u64,
@@ -115,12 +116,12 @@ impl CryptoBox {
     }
 
     pub fn decrypt(&self, cipher: &[u8], nonce: &[u8], sendKey: PublicKey) -> Vec<u8> {
+        let mut msg = Vec::from_elem(cipher.len(), 0u8);
+
+        let SecretKey(sk) = self.keypair.sk;
+        let PublicKey(pk) = sendKey;
+
         unsafe {
-            let mut msg = Vec::from_elem(cipher.len(), 0u8);
-
-            let SecretKey(sk) = self.keypair.sk;
-            let PublicKey(pk) = sendKey;
-
             // TODO: error handling.
             match crypto_box_open(msg.as_mut_ptr(),
                                   cipher.as_ptr(),
