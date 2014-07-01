@@ -38,6 +38,28 @@ pub struct SecretMsg {
     pub cipher: Vec<u8>
 }
 
+impl SecretMsg {
+    pub fn from_bytes(bytes: &[u8]) -> Option<SecretMsg> {
+        if bytes.len() <= NONCE_BYTES + ZERO_BYTES {
+            return None
+        }
+
+        let mut nonce = [0u8, ..NONCE_BYTES];
+        let cipher = bytes.slice_from(NONCE_BYTES);
+
+        copy_memory(nonce, bytes.slice(0, NONCE_BYTES));
+
+        Some(SecretMsg { nonce: nonce, cipher: Vec::from_slice(cipher) })
+    }
+
+    pub fn as_bytes(&self) -> Vec<u8> {
+        let mut buf = Vec::from_slice(self.nonce);
+        buf.push_all(self.cipher.as_slice());
+
+        buf
+    }
+}
+
 
 /// Shared secret key. Must be `<= KEY_BYTES` bytes long.
 ///
@@ -173,4 +195,21 @@ fn test_secretbox_mac_sanity() {
         assert!(decr.is_none());
     }
 
+}
+
+#[test]
+fn test_secretbox_secretmsg() {
+    let msg = b"some message";
+    let key = SecretKey::from_str("some secret key");
+    let encr = key.encrypt(msg);
+
+    let secretMsg = encr.as_bytes();
+    let re_encr = SecretMsg::from_bytes(secretMsg.as_slice());
+
+    assert!(re_encr.is_some());
+
+    let decr_opt = key.decrypt(&re_encr.unwrap());
+
+    assert!(decr_opt.is_some());
+    assert!(decr_opt.unwrap().as_slice() == msg);
 }
