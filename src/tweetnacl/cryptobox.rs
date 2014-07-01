@@ -23,6 +23,7 @@
 //! ```
 
 use bindings::*;
+use std::slice::bytes::copy_memory;
 
 /// Size of zero padding used in encrypted messages.
 pub static ZERO_BYTES: uint = 32;
@@ -87,6 +88,28 @@ impl Keypair {
 pub struct BoxedMsg {
     pub nonce: [u8, ..NONCE_BYTES],
     pub cipher: Vec<u8>
+}
+
+impl BoxedMsg {
+    pub fn from_bytes(bytes: &[u8]) -> Option<BoxedMsg> {
+        if bytes.len() <= NONCE_BYTES + ZERO_BYTES {
+            return None
+        }
+
+        let mut nonce = [0u8, ..NONCE_BYTES];
+        let cipher = bytes.slice_from(NONCE_BYTES);
+
+        copy_memory(nonce, bytes.slice(0, NONCE_BYTES));
+
+        Some(BoxedMsg { nonce: nonce, cipher: Vec::from_slice(cipher) })
+    }
+
+    pub fn as_bytes(&self) -> Vec<u8> {
+        let mut buf = Vec::from_slice(self.nonce);
+        buf.push_all(self.cipher.as_slice());
+
+        buf
+    }
 }
 
 /// TODO: document me
@@ -224,7 +247,6 @@ fn test_cryptobox_mac_sanity() {
         let kp1 = Keypair::new();
         let kp2 = Keypair::new();
 
-
         let cbox = CryptoBox::from_key_pair(kp1.sk, kp1.pk);
 
         for t in vec![(kp1.sk, kp2.pk),
@@ -240,4 +262,23 @@ fn test_cryptobox_mac_sanity() {
             assert!(plainOpt.is_none());
         }
     }
+}
+
+#[test]
+fn test_cryptobox_boxedmsg() {
+    let kp = Keypair::new();
+    let cb = CryptoBox::from_key_pair(kp.sk, kp.pk);
+
+    let msg = b"some message";
+    let boxed = cb.encrypt(msg);
+
+    let bytes = boxed.as_bytes();
+    let reboxed = BoxedMsg::from_bytes(bytes.as_slice());
+
+    assert!(reboxed.is_some());
+
+    let plainOpt = cb.decrypt(reboxed.unwrap());
+
+    assert!(plainOpt.is_some());
+    assert!(plainOpt.unwrap().as_slice() == msg);
 }
