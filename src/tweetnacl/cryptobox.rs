@@ -19,7 +19,7 @@
 //! let boxed = box1.encrypt(msg);
 //!
 //! let plain = box2.decrypt(boxed);
-//! assert!(plain == Vec::from_slice(msg));
+//! assert!(plain.unwrap() == Vec::from_slice(msg));
 //! ```
 
 use bindings::*;
@@ -129,7 +129,7 @@ impl CryptoBox {
         }
     }
 
-    pub fn decrypt(&self, boxMsg: BoxedMsg) -> Vec<u8> {
+    pub fn decrypt(&self, boxMsg: BoxedMsg) -> Option<Vec<u8>> {
         let BoxedMsg { nonce, cipher } = boxMsg;
 
         let mut msg = Vec::from_elem(cipher.len(), 0u8);
@@ -138,14 +138,14 @@ impl CryptoBox {
         let PublicKey(pk) = self.pk;
 
         unsafe {
-            // TODO: error handling.
             match crypto_box_open(msg.as_mut_ptr(),
                                   cipher.as_ptr(),
                                   cipher.len() as u64,
                                   nonce.as_ptr(),
                                   pk.as_ptr(),
                                   sk.as_ptr()) {
-                0 => Vec::from_slice(msg.slice(ZERO_BYTES, msg.len())),
+                0 => Some(Vec::from_slice(msg.slice(ZERO_BYTES, msg.len()))),
+                -2 => None,
                 _ => fail!("crypto_box_open failed")
             }
         }
@@ -168,7 +168,11 @@ fn test_cryptobox_sanity() {
 
         print!("enc:\t{}\nnonce:\t{}\n", boxed.cipher, Vec::from_slice(boxed.nonce));
 
-        let plain = box2.decrypt(boxed);
+        let plainOpt = box2.decrypt(boxed);
+
+        assert!(plainOpt.is_some());
+
+        let plain = plainOpt.unwrap();
 
         print!("plain:\t{}\n", plain);
         print!("msg:\t{}\n", msg);
@@ -201,11 +205,39 @@ fn test_cryptobox_pubkey_from_seckey() {
 
         let cbox = CryptoBox::from_key_pair(key, pk);
         let boxed = cbox.encrypt(msg);
-        let plain = cbox.decrypt(boxed);
+        let plainOpt = cbox.decrypt(boxed);
+
+        assert!(plainOpt.is_some());
+
+        let plain = plainOpt.unwrap();
 
         print!("plain:\t{}\n", plain);
         print!("msg:\t{}\n", msg);
 
         assert!(plain == Vec::from_slice(msg));
+    }
+}
+
+#[test]
+fn test_cryptobox_mac_sanity() {
+    for _ in range(0i, 16) {
+        let kp1 = Keypair::new();
+        let kp2 = Keypair::new();
+
+
+        let cbox = CryptoBox::from_key_pair(kp1.sk, kp1.pk);
+
+        for t in vec![(kp1.sk, kp2.pk),
+                      (kp2.sk, kp1.pk),
+                      (kp2.sk, kp2.pk)].iter() {
+            let msg = b"secret message";
+            let boxed = cbox.encrypt(msg);
+
+            let &(sk, pk) = t;
+            let dbox = CryptoBox::from_key_pair(sk, pk);
+
+            let plainOpt = dbox.decrypt(boxed);
+            assert!(plainOpt.is_none());
+        }
     }
 }
