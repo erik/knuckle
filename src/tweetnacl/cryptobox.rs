@@ -6,17 +6,20 @@
 //!
 //! ## Usage
 //! ```rust{.example}
-//! use tweetnacl::cryptobox::CryptoBox;
+//! use tweetnacl::cryptobox::{CryptoBox, Keypair};
 //!
-//! let box1 = CryptoBox::new();
-//! let box2 = CryptoBox::new();
+//! let key1 = Keypair::new();
+//! let key2 = Keypair::new();
 //!
-//! let msg = "my secret message";
+//! let box1 = CryptoBox::from_key_pair(key1.sk, key2.pk);
+//! let box2 = CryptoBox::from_key_pair(key2.sk, key1.pk);
 //!
-//! let (cipher, nonce) = box1.encrypt(msg.as_bytes(), box2.keypair.pk);
+//! let msg = b"my secret message";
 //!
-//! let plain = box2.decrypt(cipher.as_slice(), nonce.as_slice(), box1.keypair.pk);
-//! assert!(plain == Vec::from_slice(msg.as_bytes()));
+//! let boxed = box1.encrypt(msg);
+//!
+//! let plain = box2.decrypt(boxed);
+//! assert!(plain == Vec::from_slice(msg));
 //! ```
 
 use bindings::*;
@@ -30,11 +33,6 @@ pub static PUBLICKEY_BYTES: uint = 32;
 /// Size of secret key.
 pub static SECRETKEY_BYTES: uint = 32;
 
-/// TODO: document me
-pub struct CryptoBox {
-    pub keypair: Keypair,
-}
-
 /// A secret key used by CryptoBox
 pub struct SecretKey ([u8, ..SECRETKEY_BYTES]);
 
@@ -47,11 +45,20 @@ impl PublicKey {
         let mut pk = [0u8, ..PUBLICKEY_BYTES];
         let SecretKey(sk) = key;
 
-        unsafe {
-            crypto_scalarmult_base(pk.as_mut_ptr(), sk.as_ptr());
-        }
+        unsafe { crypto_scalarmult_base(pk.as_mut_ptr(), sk.as_ptr()); }
 
         PublicKey(pk)
+    }
+}
+
+impl SecretKey {
+    /// Generate a random new secret key.
+    pub fn new() -> SecretKey {
+        let mut sk = [0u8, ..SECRETKEY_BYTES];
+
+        unsafe { randombytes(sk.as_mut_ptr(), SECRETKEY_BYTES as u64); }
+
+        SecretKey(sk)
     }
 }
 
@@ -77,27 +84,34 @@ impl Keypair {
     }
 }
 
+pub struct BoxedMsg {
+    pub nonce: [u8, ..NONCE_BYTES],
+    pub cipher: Vec<u8>
+}
+
+/// TODO: document me
+pub struct CryptoBox {
+    pub sk: SecretKey,
+    pub pk: PublicKey
+}
+
 impl CryptoBox {
-    /// Generate a new CryptoBox using a random keypair
-    pub fn new() -> CryptoBox {
-        CryptoBox { keypair: Keypair::new() }
-    }
 
     /// Generate a new CryptoBox using an existing keypair.
-    pub fn new_with_key(key: Keypair) -> CryptoBox {
-        CryptoBox { keypair: key }
+    pub fn from_key_pair(sendKey: SecretKey, recvKey: PublicKey) -> CryptoBox {
+        CryptoBox { sk: sendKey, pk: recvKey }
     }
 
     /// Sign a message using this box's secret key and encrypt the
     /// message to the given recipient's PublicKey.
-    pub fn encrypt(&self, msg: &[u8], recvKey: PublicKey) -> (Vec<u8>, Vec<u8>) {
+    pub fn encrypt(&self, msg: &[u8]) -> BoxedMsg {
         let mut stretched = Vec::from_elem(ZERO_BYTES, 0u8);
         stretched.push_all(msg);
 
-        let SecretKey(sk) = self.keypair.sk;
-        let PublicKey(pk) = recvKey;
+        let SecretKey(sk) = self.sk;
+        let PublicKey(pk) = self.pk;
 
-        let mut nonce = Vec::from_elem(NONCE_BYTES, 0u8);
+        let mut nonce = [0u8, ..NONCE_BYTES];
         let mut cipher = Vec::from_elem(stretched.len(), 0u8);
 
         unsafe {
@@ -109,17 +123,19 @@ impl CryptoBox {
                              nonce.as_ptr(),
                              pk.as_ptr(),
                              sk.as_ptr()) {
-                0 => (cipher, nonce),
+                0 => BoxedMsg { nonce: nonce, cipher: cipher },
                 _ => fail!("crypto_box failed")
             }
         }
     }
 
-    pub fn decrypt(&self, cipher: &[u8], nonce: &[u8], sendKey: PublicKey) -> Vec<u8> {
+    pub fn decrypt(&self, boxMsg: BoxedMsg) -> Vec<u8> {
+        let BoxedMsg { nonce, cipher } = boxMsg;
+
         let mut msg = Vec::from_elem(cipher.len(), 0u8);
 
-        let SecretKey(sk) = self.keypair.sk;
-        let PublicKey(pk) = sendKey;
+        let SecretKey(sk) = self.sk;
+        let PublicKey(pk) = self.pk;
 
         unsafe {
             // TODO: error handling.
@@ -140,16 +156,19 @@ impl CryptoBox {
 #[test]
 fn test_cryptobox_sanity() {
     for i in range(0 as uint, 16) {
-        let box1 = CryptoBox::new();
-        let box2 = CryptoBox::new();
+        let key1 = Keypair::new();
+        let key2 = Keypair::new();
+
+        let box1 = CryptoBox::from_key_pair(key1.sk, key2.pk);
+        let box2 = CryptoBox::from_key_pair(key2.sk, key1.pk);
 
         let msg = Vec::from_elem(i * 4, i as u8);
 
-        let (cipher, nonce) = box1.encrypt(msg.as_slice(), box2.keypair.pk);
+        let boxed = box1.encrypt(msg.as_slice());
 
-        print!("enc:\t{}\nnonce:\t{}\n", cipher, nonce);
+        print!("enc:\t{}\nnonce:\t{}\n", boxed.cipher, Vec::from_slice(boxed.nonce));
 
-        let plain = box2.decrypt(cipher.as_slice(), nonce.as_slice(), box1.keypair.pk);
+        let plain = box2.decrypt(boxed);
 
         print!("plain:\t{}\n", plain);
         print!("msg:\t{}\n", msg);
@@ -160,7 +179,7 @@ fn test_cryptobox_sanity() {
 
 
 #[test]
-fn test_cryptobox_pubkey_from_seckey() {
+fn test_cryptobox_pubkey_from_keypair() {
     for _ in range(0i, 16) {
         let key = Keypair::new();
         let pubkey = PublicKey::from_secret_key(key.sk);
@@ -169,5 +188,24 @@ fn test_cryptobox_pubkey_from_seckey() {
         let PublicKey(k2) = key.pk;
 
         assert!(k1 == k2);
+    }
+}
+
+#[test]
+fn test_cryptobox_pubkey_from_seckey() {
+    for _ in range(0i, 16) {
+        let key = SecretKey::new();
+        let pk = PublicKey::from_secret_key(key);
+
+        let msg = b"secret message";
+
+        let cbox = CryptoBox::from_key_pair(key, pk);
+        let boxed = cbox.encrypt(msg);
+        let plain = cbox.decrypt(boxed);
+
+        print!("plain:\t{}\n", plain);
+        print!("msg:\t{}\n", msg);
+
+        assert!(plain == Vec::from_slice(msg));
     }
 }
