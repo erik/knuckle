@@ -104,3 +104,24 @@ fn test_sign_sanity() {
         assert!(desig.unwrap() == msg);
     }
 }
+
+
+#[test]
+fn test_sign_fail_sanity() {
+    let signer = Signer::new();
+    let msg = b"some message";
+
+    let other_key = SignKey::new();
+
+    let SecretKey(sk) = signer.keypair.sk;
+    let PublicKey(pk) = signer.keypair.pk;
+
+    println!("sk: {}\npk: {}", sk.as_slice(), pk.as_slice());
+
+    let sig = signer.sign(msg);
+    let desig = signer.verify(sig.as_slice(), other_key.pk);
+
+    println!("msg:\t{}\nsig:\t{}\ndesig:\t{}", msg, sig, desig);
+
+    assert!(desig.is_none());
+}
