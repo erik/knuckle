@@ -1,4 +1,20 @@
 //!
+//! ## Usage
+//!
+//! ```rust{.example}
+//! use tweetnacl::sign::Keypair;
+//!
+//! let key = Keypair::new();
+//! let msg = b"some important message";
+//!
+//! let signed = key.sign(msg);
+//!
+//! // ...
+//!
+//! let plain_opt = signed.verify();
+//! assert!(plain_opt.is_some());
+//! assert!(plain_opt.unwrap().as_slice() == msg);
+//! ```
 //!
 //! TODO: document me
 
