@@ -3,6 +3,7 @@
 //! TODO: document me
 
 use bindings::*;
+use std::slice::bytes::copy_memory;
 
 /// Number of bytes in the sign public key
 pub static PUBKEY_BYTES: uint = 32;
@@ -42,6 +43,29 @@ impl SignedMsg {
                 _  => fail!("Impossible things happened")
             }
         }
+    }
+
+    pub fn from_bytes(msg: &[u8]) -> Option<SignedMsg> {
+        if msg.len() < PUBKEY_BYTES + SIGN_BYTES {
+            return None;
+        }
+
+        let mut pk = [0u8, ..PUBKEY_BYTES];
+        let signed = msg.slice_from(PUBKEY_BYTES);
+
+        copy_memory(pk, msg.slice(0, PUBKEY_BYTES));
+
+        Some(SignedMsg { pk: PublicKey(pk), signed: Vec::from_slice(signed) })
+
+    }
+
+    pub fn as_bytes(&self) -> Vec<u8> {
+        let PublicKey(pk) = self.pk;
+        let mut buf = Vec::from_slice(pk);
+
+        buf.push_all(self.signed.as_slice());
+
+        buf
     }
 }
 
