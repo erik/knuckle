@@ -20,7 +20,6 @@
 //!
 //! Module        | Primitive
 //! ------------- | -------------
-//! auth          | HMAC-SHA-512/256
 //! cryptobox     | Curve25519/Salsa20/Poly1305
 //! hash          | SHA-512
 //! secretbox     | Salsa20/Poly1305
@@ -29,7 +28,11 @@
 
 extern crate libc;
 
-pub mod auth;
+pub use bindings::*;
+
+/// Exposes direct Rust bindings to the C NaCl interface.
+#[allow(dead_code)]
+pub mod bindings;
 
 /// Exposes the crypto_box functionality of NaCl.
 pub mod cryptobox;
@@ -45,7 +48,3 @@ pub mod sign;
 
 /// Exposes the crypto_stream functionality of NaCl.
 pub mod stream;
-
-/// Exposes direct Rust bindings to the C NaCl interface.
-#[allow(dead_code)]
-pub mod bindings;
