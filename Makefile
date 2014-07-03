@@ -31,7 +31,7 @@ DEFAULT = lib
 # Change this to support multi-crate source structure.
 # For advanced usage, you can rename the file 'rust-empty.mk'
 # and call it with 'make -f rust-empty.mk <command>' from your Makefile.
-LIB_ENTRY_FILE = src/tweetnacl/lib.rs
+LIB_ENTRY_FILE = src/lib.rs
 # The entry file of executable source.
 EXE_ENTRY_FILE = src/main.rs
 
@@ -290,8 +290,8 @@ bench-internal: test-internal
 lib: tweetnacl rlib dylib
 	$(Q)echo "--- Type 'make test' to test library"
 
-tweetnacl: target-dir src/tweetnacl.c src/tweetnacl.h
-	$(Q)cc -c -fPIC -Isrc/ src/tweetnacl.c -o $(TWEETNACL_LIB:.a=.o)
+tweetnacl: target-dir src/lib/tweetnacl.c src/lib/tweetnacl.h
+	$(Q)cc -c -fPIC -Isrc/lib/ src/lib/tweetnacl.c -o $(TWEETNACL_LIB:.a=.o)
 	$(Q)ar rcs $(TWEETNACL_LIB) $(TWEETNACL_LIB:.a=.o)
 
 rlib: $(RLIB)
