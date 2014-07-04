@@ -8,4 +8,4 @@ build = "make tweetnacl"
 [[lib]]
 
 name = "tweetnacl"
-path = "src/tweetnacl/lib.rs"
+path = "src/lib.rs"
