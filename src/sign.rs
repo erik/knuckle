@@ -2,7 +2,7 @@
 //! ## Usage
 //!
 //! ```rust{.example}
-//! use tweetnacl::sign::Keypair;
+//! use knuckle::sign::Keypair;
 //!
 //! let key = Keypair::new();
 //! let msg = b"some important message";

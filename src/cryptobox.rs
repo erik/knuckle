@@ -6,7 +6,7 @@
 //!
 //! ## Usage
 //! ```rust{.example}
-//! use tweetnacl::cryptobox::{CryptoBox, Keypair};
+//! use knuckle::cryptobox::{CryptoBox, Keypair};
 //!
 //! let key1 = Keypair::new();
 //! let key2 = Keypair::new();

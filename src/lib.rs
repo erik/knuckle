@@ -1,14 +1,18 @@
-#![crate_id = "tweetnacl#tweetnacl"]
+#![crate_id = "knuckle#knuckle"]
 #![crate_type = "lib"]
 #![desc = "TODO: write me"]
-#![comment = "TODO: write me"]
 #![license = "MIT"]
 
 #![feature(globs)]
 // #[deny(missing_doc)]
 
-//! `tweetnacl` is an opinionated Rust language interface to the
+//! `knuckle` is an opinionated Rust language interface to the
 //! already opinionated NaCl project.
+//!
+//! Specifically, knuckle uses `tweetnacl`, a minimal implementation
+//! of NaCl that's implemented as a standalone C file. Theoretically, the
+//! backend could be trivially switched to either full NaCl or the
+//! derivative `libsodium` project.
 //!
 //! It provides several useful abstractions around NaCl's primitives,
 //! but also exposes direct bindings to the C library (via the `bindings`

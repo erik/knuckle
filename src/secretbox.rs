@@ -7,7 +7,7 @@
 //! ## Usage
 //!
 //! ```rust{.example}
-//! use tweetnacl::secretbox::{SecretKey, SecretMsg};
+//! use knuckle::secretbox::{SecretKey, SecretMsg};
 //!
 //! let key = SecretKey::from_str("some secret key");
 //! let enc: SecretMsg = key.encrypt("my secret msg".as_bytes());

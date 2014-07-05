@@ -1,5 +1,5 @@
 [package]
-name = "tweetnacl.rs"
+name = "knuckle"
 version = "0.0.0"
 authors = ["Erik Price"]
 
@@ -7,5 +7,5 @@ build = "make tweetnacl"
 
 [[lib]]
 
-name = "tweetnacl"
+name = "knuckle"
 path = "src/lib.rs"
