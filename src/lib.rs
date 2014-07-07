@@ -1,4 +1,4 @@
-#![crate_id = "knuckle#knuckle"]
+#![crate_name = "knuckle"]
 #![crate_type = "lib"]
 #![desc = "TODO: write me"]
 #![license = "MIT"]
