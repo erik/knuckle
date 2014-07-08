@@ -1,6 +1,6 @@
 [package]
 name = "knuckle"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["Erik Price"]
 
 build = "make tweetnacl"

@@ -4,7 +4,7 @@
 #![license = "MIT"]
 
 #![feature(globs)]
-// #[deny(missing_doc)]
+//#![deny(missing_doc)]
 
 //! `knuckle` is an opinionated Rust language interface to the
 //! already opinionated NaCl project.
