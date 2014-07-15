@@ -2,7 +2,11 @@ env:
   global:
     - secure: a0aZLlsuJdEsS/94pcCIr9D0WPdoawBH/dCz39/RAxTcT+g56YzlU4RtjyVqnlo92qPYAs11r/CrAGKCJHS92GIESUziA0ZDwgkKpPerJYl/OcTL612ArARO02UDNsD67y+gAOZF5xrt/Sppro65oIqKVYRwY+HKcESlQqp9/b0=
 install:
-  - wget http://static.rust-lang.org/dist/rust-nightly-x86_64-unknown-linux-gnu.tar.gz -O - | sudo tar zxf - --strip-components 1 -C /usr/local
+  - curl --retry 3 --output rust.tgz
+    http://static.rust-lang.org/dist/rust-nightly-x86_64-unknown-linux-gnu.tar.gz
+  - tar xf rust.tgz
+  - (cd ./rust-nightly-x86_64-unknown-linux-gnu/; sudo ./install.sh)
+  - export LD_LIBRARY_PATH=/usr/local/lib
 script:
   - make lib test doc
 after_script:
