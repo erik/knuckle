@@ -5,6 +5,8 @@ install:
   - curl -s http://www.rust-lang.org/rustup.sh | sudo sh - 
   - export LD_LIBRARY_PATH=$PWD/target/:/usr/local/lib/
 script:
-  - make lib test doc
+  - cargo build
+  - cargo test
+  - make doctest doc
 after_script:
   - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
