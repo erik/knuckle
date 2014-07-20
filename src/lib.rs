@@ -52,3 +52,6 @@ pub mod sign;
 
 /// Exposes the crypto_stream functionality of NaCl.
 pub mod stream;
+
+/// Utility functions
+pub mod util;

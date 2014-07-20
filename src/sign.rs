@@ -72,7 +72,6 @@ impl SignedMsg {
         copy_memory(pk, msg.slice(0, PUBKEY_BYTES));
 
         Some(SignedMsg { pk: PublicKey(pk), signed: Vec::from_slice(signed) })
-
     }
 
     pub fn as_bytes(&self) -> Vec<u8> {
