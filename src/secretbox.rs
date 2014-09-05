@@ -203,8 +203,8 @@ fn test_secretbox_secretmsg() {
     let key = SecretKey::from_str("some secret key");
     let encr = key.encrypt(msg);
 
-    let secretMsg = encr.as_bytes();
-    let re_encr = SecretMsg::from_bytes(secretMsg.as_slice());
+    let secret_msg= encr.as_bytes();
+    let re_encr = SecretMsg::from_bytes(secret_msg.as_slice());
 
     assert!(re_encr.is_some());
 

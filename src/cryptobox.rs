@@ -121,8 +121,9 @@ pub struct CryptoBox {
 impl CryptoBox {
 
     /// Generate a new CryptoBox using an existing keypair.
-    pub fn from_key_pair(sendKey: SecretKey, recvKey: PublicKey) -> CryptoBox {
-        CryptoBox { sk: sendKey, pk: recvKey }
+
+    pub fn from_key_pair(send_key: SecretKey, recv_key: PublicKey) -> CryptoBox {
+        CryptoBox { sk: send_key, pk: recv_key }
     }
 
     /// Sign a message using this box's secret key and encrypt the
@@ -152,8 +153,8 @@ impl CryptoBox {
         }
     }
 
-    pub fn decrypt(&self, boxMsg: BoxedMsg) -> Option<Vec<u8>> {
-        let BoxedMsg { nonce, cipher } = boxMsg;
+    pub fn decrypt(&self, box_msg: BoxedMsg) -> Option<Vec<u8>> {
+        let BoxedMsg { nonce, cipher } = box_msg;
 
         let mut msg = Vec::from_elem(cipher.len(), 0u8);
 
@@ -191,11 +192,11 @@ fn test_cryptobox_sanity() {
 
         print!("enc:\t{}\nnonce:\t{}\n", boxed.cipher, Vec::from_slice(boxed.nonce));
 
-        let plainOpt = box2.decrypt(boxed);
+        let plain_opt = box2.decrypt(boxed);
 
-        assert!(plainOpt.is_some());
+        assert!(plain_opt.is_some());
 
-        let plain = plainOpt.unwrap();
+        let plain = plain_opt.unwrap();
 
         print!("plain:\t{}\n", plain);
         print!("msg:\t{}\n", msg);
@@ -228,11 +229,11 @@ fn test_cryptobox_pubkey_from_seckey() {
 
         let cbox = CryptoBox::from_key_pair(key, pk);
         let boxed = cbox.encrypt(msg);
-        let plainOpt = cbox.decrypt(boxed);
+        let plain_opt = cbox.decrypt(boxed);
 
-        assert!(plainOpt.is_some());
+        assert!(plain_opt.is_some());
 
-        let plain = plainOpt.unwrap();
+        let plain = plain_opt.unwrap();
 
         print!("plain:\t{}\n", plain);
         print!("msg:\t{}\n", msg);
@@ -258,8 +259,8 @@ fn test_cryptobox_mac_sanity() {
             let &(sk, pk) = t;
             let dbox = CryptoBox::from_key_pair(sk, pk);
 
-            let plainOpt = dbox.decrypt(boxed);
-            assert!(plainOpt.is_none());
+            let plain_opt = dbox.decrypt(boxed);
+            assert!(plain_opt.is_none());
         }
     }
 }
@@ -277,8 +278,8 @@ fn test_cryptobox_boxedmsg() {
 
     assert!(reboxed.is_some());
 
-    let plainOpt = cb.decrypt(reboxed.unwrap());
+    let plain_opt = cb.decrypt(reboxed.unwrap());
 
-    assert!(plainOpt.is_some());
-    assert!(plainOpt.unwrap().as_slice() == msg);
+    assert!(plain_opt.is_some());
+    assert!(plain_opt.unwrap().as_slice() == msg);
 }
