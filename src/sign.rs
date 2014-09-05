@@ -180,3 +180,40 @@ fn test_sign_fail_sanity() {
 
     assert!(desig.is_none());
 }
+
+#[test]
+fn test_sign_tamper_resistance() {
+    let keypair = Keypair::new();
+    let msg = b"something";
+
+    let sig = keypair.sign(msg);
+    let mut tampered_msg = sig.signed.clone();
+
+    // Try tampering each of the different bytes of the signed message
+    for i in range(0, tampered_msg.len()) {
+        *tampered_msg.get_mut(i) = tampered_msg[i] ^ 0xFF;
+
+        let tampered_sig = SignedMsg { pk: keypair.pk, signed: tampered_msg.clone() };
+        let design = tampered_sig.verify();
+
+        println!("msg:\t{}\nsig:\t{}\ndesig:\t{}", msg, sig.signed, design);
+        assert!(design.is_none());
+    }
+}
+
+#[test]
+fn test_sign_serialization() {
+    let keypair = Keypair::new();
+    let msg = b"my message";
+
+    let signed = keypair.sign(msg);
+    let serialized = signed.as_bytes();
+    let deserialized = SignedMsg::from_bytes(serialized.as_slice());
+
+    assert!(deserialized.is_some());
+
+    let validated_msg = deserialized.unwrap().verify();
+
+    assert!(validated_msg.is_some());
+    assert!(validated_msg.unwrap().as_slice() == msg);
+}
