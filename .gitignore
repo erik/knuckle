@@ -24,3 +24,4 @@ watch.sh
 !/examples/*.rs
 !/examples/assets/
 bin/
+Cargo.lock
