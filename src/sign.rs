@@ -30,12 +30,17 @@ pub static SECKEY_BYTES: uint = 64;
 /// Bytes of padding used in each signed message
 pub static SIGN_BYTES: uint = 64;
 
+/// Key used to verify the validity of signed messages.
 pub struct PublicKey ([u8, ..PUBKEY_BYTES]);
+
+/// Secret key used to generate valid message signatures.
 pub struct SecretKey ([u8, ..SECKEY_BYTES]);
 
 /// Encapsulates the verification key and signed message.
 pub struct SignedMsg {
+    /// Public key matching the key used to sign this message.
     pub pk: PublicKey,
+    /// Cryptographically signed message, containing both signature and message.
     pub signed: Vec<u8>
 }
 
@@ -63,6 +68,25 @@ impl SignedMsg {
         }
     }
 
+    /// Serialize the `SignedMsg` into bytes. Response will contain both the
+    /// public key to verify the message as well as the signed message itself.
+    ///
+    /// **IMPORTANT**: THIS SHOULD NOT BE USED TO TRANSFER THE PUBLIC KEY. It is
+    /// only included for convenience. Make sure the client checking the signature
+    /// has some secure source for receiving the correct verification key.
+    pub fn as_bytes(&self) -> Vec<u8> {
+        let PublicKey(pk) = self.pk;
+        let mut buf = Vec::from_slice(pk);
+
+        buf.push_all(self.signed.as_slice());
+
+        buf
+    }
+
+    /// Construct a SignedMsg from the form serialized by `as_bytes`.
+    ///
+    /// **IMPORTANT**: The same warning in the documentation for `as_bytes`
+    /// applies here. Don't blindly trust keys!
     pub fn from_bytes(msg: &[u8]) -> Option<SignedMsg> {
         if msg.len() < PUBKEY_BYTES + SIGN_BYTES {
             return None;
@@ -75,18 +99,9 @@ impl SignedMsg {
 
         Some(SignedMsg { pk: PublicKey(pk), signed: Vec::from_slice(signed) })
     }
-
-    pub fn as_bytes(&self) -> Vec<u8> {
-        let PublicKey(pk) = self.pk;
-        let mut buf = Vec::from_slice(pk);
-
-        buf.push_all(self.signed.as_slice());
-
-        buf
-    }
 }
 
-/// Matching secret / public keys.
+/// Struct representing a signing key pair, used to create signed messages.
 pub struct Keypair {
     pub sk: SecretKey,
     pub pk: PublicKey
@@ -105,7 +120,7 @@ impl Keypair {
         Keypair { pk: PublicKey(pk), sk: SecretKey(sk) }
     }
 
-    /// Sign a given message with this keypair's secret key.
+    /// Sign a given message with this keypair's signing key.
     pub fn sign(&self, msg: &[u8]) -> SignedMsg {
         let mut signed: Vec<u8> = Vec::from_elem(msg.len() + SIGN_BYTES, 0u8);
         let mut signed_len: u64 = 0;

@@ -51,7 +51,6 @@ pub mod hash;
 pub mod secretbox;
 
 /// Provides simple interface to generate and validate digital signatures.
-#[stable]
 pub mod sign;
 
 /// Exposes the crypto_stream functionality of NaCl. (Not yet written)

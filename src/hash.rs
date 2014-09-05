@@ -5,8 +5,8 @@
 //! ```rust{.example}
 //! use knuckle::hash::hash;
 //!
-//! let digest1 = hash("this is my message".as_bytes());
-//! let digest2 = hash("this is your message".as_bytes());
+//! let digest1 = hash(b"this is my message");
+//! let digest2 = hash(b"this is your message");
 //!
 //! assert!(digest1 != digest2);
 //! ```
