@@ -1,6 +1,5 @@
 #![crate_name = "knuckle"]
 #![crate_type = "lib"]
-#![desc = "TODO: write me"]
 #![license = "MIT"]
 
 #![feature(globs)]
@@ -36,22 +35,27 @@ pub use bindings::*;
 
 /// Exposes direct Rust bindings to the C NaCl interface.
 #[allow(dead_code)]
+#[stable]
 pub mod bindings;
 
-/// Exposes the crypto_box functionality of NaCl.
+/// Provides authenticated asymmetric key cryptography operations.
+#[stable]
 pub mod cryptobox;
 
-/// Exposes the crypto_hash functionality of NaCl.
+/// Simple interface to strong cryptographic hash function.
+#[stable]
 pub mod hash;
 
-/// Exposes the crypto_secretbox functionality of NaCl.
+/// Provides authenticated symmetric key cryptography operations.
+#[stable]
 pub mod secretbox;
 
-/// Exposes the crypto_sign functionality of NaCl.
+/// Provides simple interface to generate and validate digital signatures.
+#[stable]
 pub mod sign;
 
-/// Exposes the crypto_stream functionality of NaCl.
+/// Exposes the crypto_stream functionality of NaCl. (Not yet written)
 pub mod stream;
 
-/// Utility functions
+/// Useful common functions for this library.
 pub mod util;

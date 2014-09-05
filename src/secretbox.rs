@@ -1,4 +1,6 @@
 //!
+//! Exposes the crypto_secretbox functionality of NaCl.
+//!
 //! The `secretbox` module symmetrically encrypts given plaintext and
 //! then uses a one time authenticator to ensure tamper-resistance.
 //!

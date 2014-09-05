@@ -1,4 +1,6 @@
 //!
+//! Exposes the crypto_sign functionality of NaCl.
+//!
 //! ## Usage
 //!
 //! ```rust{.example}

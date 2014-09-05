@@ -1,3 +1,6 @@
+//!
+//! TODO: Write me
+
 pub static KEY_BYTES: uint = 32;
 // static NONCE_BYTES: uint = 8;
 

@@ -1,6 +1,15 @@
 //!
-//! Contains a simple interface to a strong cryptographic hash
-//! function.
+//! Exposes the `crypto_hash` functionality of NaCl.
+//!
+//! ## Usage
+//! ```rust{.example}
+//! use knuckle::hash::hash;
+//!
+//! let digest1 = hash("this is my message".as_bytes());
+//! let digest2 = hash("this is your message".as_bytes());
+//!
+//! assert!(digest1 != digest2);
+//! ```
 
 use bindings::*;
 

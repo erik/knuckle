@@ -1,6 +1,6 @@
 //!
-//! These are black boxes to perform authenticated asymmetric
-//! cryptography.
+//! Exposes the crypto_box functionality of NaCl.
+//!
 //!
 //! TODO: Document me
 //!
