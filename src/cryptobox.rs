@@ -309,3 +309,24 @@ fn test_cryptobox_boxedmsg() {
     assert!(plain_opt.is_some());
     assert!(plain_opt.unwrap().as_slice() == msg);
 }
+
+#[test]
+fn test_cryptobox_tamper_resistance() {
+    let kp = Keypair::new();
+    let cb = CryptoBox::from_key_pair(kp.sk, kp.pk);
+    let msg = b"something";
+
+    let boxed = cb.encrypt(msg);
+    let mut tampered_msg = boxed.cipher.clone();
+
+    // Start past the end of the nonce padding
+    for i in range(16, tampered_msg.len()) {
+        *tampered_msg.get_mut(i) = tampered_msg[i] ^ 0xFF;
+
+        let tampered_boxed = BoxedMsg { nonce: boxed.nonce, cipher: tampered_msg.clone() };
+        let plaintext = cb.decrypt(tampered_boxed);
+
+        println!("msg:\t{}\ntampered:\t{}\nplaintext:\t{}", msg, tampered_msg, plaintext);
+        assert!(plaintext.is_none());
+    }
+}

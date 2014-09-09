@@ -213,3 +213,22 @@ fn test_secretbox_secretmsg() {
     assert!(decr_opt.is_some());
     assert!(decr_opt.unwrap().as_slice() == msg);
 }
+
+#[test]
+fn test_secretkey_tamper_resistance() {
+    let msg = b"some message";
+    let key = SecretKey::from_str("some secret key");
+    let encr = key.encrypt(msg);
+    let mut tampered_msg = encr.cipher.clone();
+
+    // Start past the end of the nonce padding
+    for i in range(16, tampered_msg.len()) {
+        *tampered_msg.get_mut(i) = tampered_msg[i] ^ 0xFF;
+
+        let tampered = SecretMsg { nonce: encr.nonce, cipher: tampered_msg.clone() };
+        let plaintext = key.decrypt(&tampered);
+
+        println!("msg:\t{}\ntampered:\t{}\nplaintext:\t{}", msg, tampered.cipher, plaintext);
+        assert!(plaintext.is_none());
+    }
+}
