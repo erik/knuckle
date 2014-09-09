@@ -1,23 +1,38 @@
 //!
 //! Exposes the crypto_box functionality of NaCl.
 //!
+//! The `cryptobox` module allows simple access to asymmetric (i.e. public key /
+//! private key) encryption, including message authentication to ensure message
+//! validity.
 //!
-//! TODO: Document me
+//! A `CryptoBox` is the black box interface for encrypting and decrypting
+//! messages from and to a specific recipient.
+//!
+//! **CAREFUL:** safely transporting and verifying public keys is still a
+//! difficult problem. The exact solution depends on your use case, but don't just
+//! send over a public key in the clear and assume it will be safe.
 //!
 //! ## Usage
 //! ```rust{.example}
 //! use knuckle::cryptobox::{CryptoBox, Keypair};
 //!
+//! // For this example, pretend that key1 / box1 exist on some other computer
+//! // than key2 / box2.
+//!
+//! // Generate two independent sets of keypairs
 //! let key1 = Keypair::new();
 //! let key2 = Keypair::new();
 //!
+//! // Create a black box for handling messages between the keypairs.
 //! let box1 = CryptoBox::from_key_pair(key1.sk, key2.pk);
 //! let box2 = CryptoBox::from_key_pair(key2.sk, key1.pk);
 //!
 //! let msg = b"my secret message";
 //!
+//! // Encrypt `msg` so that only the owner of `key2` can decrypt it.
 //! let boxed = box1.encrypt(msg);
 //!
+//! // Decrypt the encrypted message using `key2`'s secret key.
 //! let plain = box2.decrypt(boxed);
 //! assert!(plain.unwrap() == Vec::from_slice(msg));
 //! ```
@@ -53,7 +68,8 @@ impl PublicKey {
 }
 
 impl SecretKey {
-    /// Generate a random new secret key.
+    /// Generate a random new secret key. This is done simply by grabbing the
+    /// appropriate number of random bytes.
     pub fn new() -> SecretKey {
         let mut sk = [0u8, ..SECRETKEY_BYTES];
 
@@ -85,12 +101,24 @@ impl Keypair {
     }
 }
 
+///Struct representing the encrypted contents of a message.
 pub struct BoxedMsg {
+    /// Nonce value used for this encrypted message
     pub nonce: [u8, ..NONCE_BYTES],
+    /// The ciphertext value of the encrypted plaintext
     pub cipher: Vec<u8>
 }
 
 impl BoxedMsg {
+    /// Serialize a BoxedMsg into bytes, use `BoxedMsg::from_bytes` to deserialize.
+    pub fn as_bytes(&self) -> Vec<u8> {
+        let mut buf = Vec::from_slice(self.nonce);
+        buf.push_all(self.cipher.as_slice());
+
+        buf
+    }
+
+    /// Deserialize a BoxedMsg instance out of its byte representation
     pub fn from_bytes(bytes: &[u8]) -> Option<BoxedMsg> {
         if bytes.len() <= NONCE_BYTES + ZERO_BYTES {
             return None
@@ -103,25 +131,20 @@ impl BoxedMsg {
 
         Some(BoxedMsg { nonce: nonce, cipher: Vec::from_slice(cipher) })
     }
-
-    pub fn as_bytes(&self) -> Vec<u8> {
-        let mut buf = Vec::from_slice(self.nonce);
-        buf.push_all(self.cipher.as_slice());
-
-        buf
-    }
 }
 
-/// TODO: document me
+/// Struct enabling bidirectional asymmetrically encrypted communication
+/// between two parties.
 pub struct CryptoBox {
+    /// Key used to decrypt messages passed to this CryptoBox. Sender must have
+    /// the matching public key.
     pub sk: SecretKey,
+    /// Key used to encrypt messages to some other party.
     pub pk: PublicKey
 }
 
 impl CryptoBox {
-
     /// Generate a new CryptoBox using an existing keypair.
-
     pub fn from_key_pair(send_key: SecretKey, recv_key: PublicKey) -> CryptoBox {
         CryptoBox { sk: send_key, pk: recv_key }
     }
@@ -153,6 +176,9 @@ impl CryptoBox {
         }
     }
 
+    /// Given an encrypted message, attempt to decrypt the content, returning
+    /// None if the message was unable to be decrypted (indicating tampered message
+    /// or a bad public / secret key match).
     pub fn decrypt(&self, box_msg: BoxedMsg) -> Option<Vec<u8>> {
         let BoxedMsg { nonce, cipher } = box_msg;
 

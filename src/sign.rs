@@ -17,8 +17,6 @@
 //! assert!(plain_opt.is_some());
 //! assert!(plain_opt.unwrap().as_slice() == msg);
 //! ```
-//!
-//! TODO: document me
 
 use bindings::*;
 use std::slice::bytes::copy_memory;

@@ -19,8 +19,6 @@
 //! let decr_opt = key.decrypt(&enc);
 //! println!("decrypted: {}", decr_opt.unwrap());
 //! ```
-//!
-//! TODO: document me.
 
 use bindings::*;
 use std::slice::bytes::copy_memory;
