@@ -138,7 +138,7 @@ help:
 
 nightly-install:
 	$(Q)cd ~ \
-	&& curl -s http://www.rust-lang.org/rustup.sh > rustup.sh \
+	&& curl -s https://static.rust-lang.org/rustup.sh > rustup.sh \
 	&& ( \
 		echo "Rust install-script stored as '~/rustup.sh'" ; \
 		read -p "Do you want to install? [y/n]:" -n 1 -r ; \
@@ -151,7 +151,7 @@ nightly-install:
 
 nightly-uninstall:
 	$(Q)cd ~ \
-	&& curl -s http://www.rust-lang.org/rustup.sh > rustup.sh \
+	&& curl -s https://static.rust-lang.org/rustup.sh > rustup.sh \
 	&& ( \
 		echo "Rust install-script stored as '~/rustup.sh'" ; \
 		read -p "Do you want to uninstall? [y/n]:" -n 1 -r ; \
