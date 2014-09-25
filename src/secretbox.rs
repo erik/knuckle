@@ -49,11 +49,11 @@ impl SecretMsg {
 
         copy_memory(nonce, bytes.slice(0, NONCE_BYTES));
 
-        Some(SecretMsg { nonce: nonce, cipher: Vec::from_slice(cipher) })
+        Some(SecretMsg { nonce: nonce, cipher: cipher.to_vec() })
     }
 
     pub fn as_bytes(&self) -> Vec<u8> {
-        let mut buf = Vec::from_slice(self.nonce);
+        let mut buf = self.nonce.to_vec();
         buf.push_all(self.cipher.as_slice());
 
         buf
@@ -124,7 +124,7 @@ impl SecretKey {
                                         msg.cipher.len() as u64,
                                         msg.nonce.as_ptr(),
                                         sk.as_ptr()) {
-                0 => Some(Vec::from_slice(plaintext.slice(ZERO_BYTES, plaintext.len()))),
+                0 => Some(plaintext.slice(ZERO_BYTES, plaintext.len()).to_vec()),
                 -2 => None,
                 _ => fail!("crypto_secretbox_open failed")
             }
@@ -141,7 +141,7 @@ fn test_secretbox_sanity() {
         let key = SecretKey::from_str("some secret key");
         let SecretMsg { nonce, cipher } = key.encrypt(msg.as_slice());
 
-        println!("enc:\t{}\nnonce:\t{}", cipher, Vec::from_slice(nonce));
+        println!("enc:\t{}\nnonce:\t{}", cipher, nonce.to_vec());
 
         let decr_opt = key.decrypt(&SecretMsg { nonce: nonce, cipher: cipher });
 

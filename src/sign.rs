@@ -74,7 +74,7 @@ impl SignedMsg {
     /// has some secure source for receiving the correct verification key.
     pub fn as_bytes(&self) -> Vec<u8> {
         let PublicKey(pk) = self.pk;
-        let mut buf = Vec::from_slice(pk);
+        let mut buf = pk.to_vec();
 
         buf.push_all(self.signed.as_slice());
 
@@ -95,7 +95,7 @@ impl SignedMsg {
 
         copy_memory(pk, msg.slice(0, PUBKEY_BYTES));
 
-        Some(SignedMsg { pk: PublicKey(pk), signed: Vec::from_slice(signed) })
+        Some(SignedMsg { pk: PublicKey(pk), signed: signed.to_vec() })
     }
 }
 

@@ -34,7 +34,7 @@
 //!
 //! // Decrypt the encrypted message using `key2`'s secret key.
 //! let plain = box2.decrypt(boxed);
-//! assert!(plain.unwrap() == Vec::from_slice(msg));
+//! assert!(plain.unwrap() == msg.to_vec());
 //! ```
 
 use bindings::*;
@@ -112,7 +112,7 @@ pub struct BoxedMsg {
 impl BoxedMsg {
     /// Serialize a BoxedMsg into bytes, use `BoxedMsg::from_bytes` to deserialize.
     pub fn as_bytes(&self) -> Vec<u8> {
-        let mut buf = Vec::from_slice(self.nonce);
+        let mut buf = self.nonce.to_vec();
         buf.push_all(self.cipher.as_slice());
 
         buf
@@ -129,7 +129,7 @@ impl BoxedMsg {
 
         copy_memory(nonce, bytes.slice(0, NONCE_BYTES));
 
-        Some(BoxedMsg { nonce: nonce, cipher: Vec::from_slice(cipher) })
+        Some(BoxedMsg { nonce: nonce, cipher: cipher.to_vec() })
     }
 }
 
@@ -194,7 +194,7 @@ impl CryptoBox {
                                   nonce.as_ptr(),
                                   pk.as_ptr(),
                                   sk.as_ptr()) {
-                0 => Some(Vec::from_slice(msg.slice(ZERO_BYTES, msg.len()))),
+                0 => Some(msg.slice(ZERO_BYTES, msg.len()).to_vec()),
                 -2 => None,
                 _ => fail!("crypto_box_open failed")
             }
@@ -216,7 +216,7 @@ fn test_cryptobox_sanity() {
 
         let boxed = box1.encrypt(msg.as_slice());
 
-        print!("enc:\t{}\nnonce:\t{}\n", boxed.cipher, Vec::from_slice(boxed.nonce));
+        print!("enc:\t{}\nnonce:\t{}\n", boxed.cipher, boxed.nonce.to_vec());
 
         let plain_opt = box2.decrypt(boxed);
 
@@ -264,7 +264,7 @@ fn test_cryptobox_pubkey_from_seckey() {
         print!("plain:\t{}\n", plain);
         print!("msg:\t{}\n", msg);
 
-        assert!(plain == Vec::from_slice(msg));
+        assert!(plain == msg.to_vec());
     }
 }
 
