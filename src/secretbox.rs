@@ -24,11 +24,11 @@ use bindings::*;
 use std::slice::bytes::copy_memory;
 
 /// Size of shared secret key used for symmetric encryption.
-pub static KEY_BYTES: uint = 32;
+pub const KEY_BYTES: uint = 32;
 /// Size of the nonce value.
-pub static NONCE_BYTES: uint = 24;
+pub const NONCE_BYTES: uint = 24;
 /// Size of the zero padding applied to each message.
-pub static ZERO_BYTES: uint = 32;
+pub const ZERO_BYTES: uint = 32;
 
 
 /// Encapsulates both the nonce value and cipher text returned by `encrypt`.

@@ -14,7 +14,7 @@
 use bindings::*;
 
 /// Byte size of the hashed output.
-pub static HASH_BYTES: uint = 64;
+pub const HASH_BYTES: uint = 64;
 
 /// Hash a given message.
 pub fn hash(msg: &[u8]) -> [u8, ..HASH_BYTES] {
