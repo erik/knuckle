@@ -182,11 +182,11 @@ fn test_secretbox_mac_sanity() {
     let mut ciphers = [cipher.clone(), cipher.clone(), cipher.clone()];
 
     // tamper with the cipher text in various ways
-    ciphers[0].push(0u8);
-    ciphers[1].pop();
+    ciphers[0u].push(0u8);
+    ciphers[1u].pop();
 
-    let last = ciphers[2].pop().unwrap();
-    ciphers[2].push(last + 1);
+    let last = ciphers[2u].pop().unwrap();
+    ciphers[2u].push(last + 1);
 
     for c in ciphers.iter() {
         let decr = key.decrypt(&SecretMsg { nonce: nonce, cipher: c.clone() });
