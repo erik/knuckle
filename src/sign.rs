@@ -22,11 +22,11 @@ use bindings::*;
 use std::slice::bytes::copy_memory;
 
 /// Number of bytes in the sign public key
-pub static PUBKEY_BYTES: uint = 32;
+pub const PUBKEY_BYTES: uint = 32;
 /// Number of bytes in the sign private key
-pub static SECKEY_BYTES: uint = 64;
+pub const SECKEY_BYTES: uint = 64;
 /// Bytes of padding used in each signed message
-pub static SIGN_BYTES: uint = 64;
+pub const SIGN_BYTES: uint = 64;
 
 /// Key used to verify the validity of signed messages.
 pub struct PublicKey ([u8, ..PUBKEY_BYTES]);

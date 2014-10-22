@@ -41,13 +41,13 @@ use bindings::*;
 use std::slice::bytes::copy_memory;
 
 /// Size of zero padding used in encrypted messages.
-pub static ZERO_BYTES: uint = 32;
+pub const ZERO_BYTES: uint = 32;
 /// Size of encrypted message's nonce value.
-pub static NONCE_BYTES: uint = 24;
+pub const NONCE_BYTES: uint = 24;
 /// Size of public key.
-pub static PUBLICKEY_BYTES: uint = 32;
+pub const PUBLICKEY_BYTES: uint = 32;
 /// Size of secret key.
-pub static SECRETKEY_BYTES: uint = 32;
+pub const SECRETKEY_BYTES: uint = 32;
 
 /// A secret key used by CryptoBox
 pub struct SecretKey ([u8, ..SECRETKEY_BYTES]);
