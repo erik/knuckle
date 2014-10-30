@@ -171,7 +171,7 @@ impl CryptoBox {
                              pk.as_ptr(),
                              sk.as_ptr()) {
                 0 => BoxedMsg { nonce: nonce, cipher: cipher },
-                _ => fail!("crypto_box failed")
+                _ => panic!("crypto_box failed")
             }
         }
     }
@@ -196,7 +196,7 @@ impl CryptoBox {
                                   sk.as_ptr()) {
                 0 => Some(msg.slice(ZERO_BYTES, msg.len()).to_vec()),
                 -2 => None,
-                _ => fail!("crypto_box_open failed")
+                _ => panic!("crypto_box_open failed")
             }
         }
     }
