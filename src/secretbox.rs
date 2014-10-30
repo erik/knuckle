@@ -104,7 +104,7 @@ impl SecretKey {
                                    nonce.as_ptr(),
                                    sk.as_ptr()) {
                 0 => SecretMsg { nonce: nonce, cipher: cipher },
-                _ => fail!("crypto_secretbox failed")
+                _ => panic!("crypto_secretbox failed")
             }
         }
     }
@@ -126,7 +126,7 @@ impl SecretKey {
                                         sk.as_ptr()) {
                 0 => Some(plaintext.slice(ZERO_BYTES, plaintext.len()).to_vec()),
                 -2 => None,
-                _ => fail!("crypto_secretbox_open failed")
+                _ => panic!("crypto_secretbox_open failed")
             }
         }
     }

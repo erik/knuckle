@@ -61,7 +61,7 @@ impl SignedMsg {
                     msg.set_len(msg_len as uint);
                     Some(msg)
                 },
-                _  => fail!("Impossible things happened")
+                _  => panic!("Impossible things happened")
             }
         }
     }
