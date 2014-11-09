@@ -13,7 +13,6 @@
 
 use libc::*;
 
-#[link(name = "tweetnacl", kind = "static")]
 extern "C" {
     // --- Utilities ---
 
