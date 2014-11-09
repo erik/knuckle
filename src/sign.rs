@@ -189,7 +189,7 @@ fn test_sign_tamper_resistance() {
 
     // Try tampering each of the different bytes of the signed message
     for i in range(0, tampered_msg.len()) {
-        *tampered_msg.get_mut(i) = tampered_msg[i] ^ 0xFF;
+        tampered_msg[i] = tampered_msg[i] ^ 0xFF;
 
         let tampered_sig = SignedMsg { pk: keypair.pk, signed: tampered_msg.clone() };
         let design = tampered_sig.verify();

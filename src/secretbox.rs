@@ -223,7 +223,7 @@ fn test_secretkey_tamper_resistance() {
 
     // Start past the end of the nonce padding
     for i in range(16, tampered_msg.len()) {
-        *tampered_msg.get_mut(i) = tampered_msg[i] ^ 0xFF;
+        tampered_msg[i] = tampered_msg[i] ^ 0xFF;
 
         let tampered = SecretMsg { nonce: encr.nonce, cipher: tampered_msg.clone() };
         let plaintext = key.decrypt(&tampered);
