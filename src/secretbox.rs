@@ -47,7 +47,7 @@ impl SecretMsg {
         let mut nonce = [0u8, ..NONCE_BYTES];
         let cipher = bytes.slice_from(NONCE_BYTES);
 
-        copy_memory(nonce, bytes.slice(0, NONCE_BYTES));
+        copy_memory(&mut nonce, bytes.slice(0, NONCE_BYTES));
 
         Some(SecretMsg { nonce: nonce, cipher: cipher.to_vec() })
     }
@@ -77,7 +77,7 @@ impl SecretKey {
         assert!(slice.len() <= KEY_BYTES);
 
         let mut sized = [0u8, ..KEY_BYTES];
-        copy_memory(sized, slice);
+        copy_memory(&mut sized, slice);
 
         SecretKey(sized)
     }

@@ -127,7 +127,7 @@ impl BoxedMsg {
         let mut nonce = [0u8, ..NONCE_BYTES];
         let cipher = bytes.slice_from(NONCE_BYTES);
 
-        copy_memory(nonce, bytes.slice(0, NONCE_BYTES));
+        copy_memory(&mut nonce, bytes.slice(0, NONCE_BYTES));
 
         Some(BoxedMsg { nonce: nonce, cipher: cipher.to_vec() })
     }
