@@ -124,6 +124,7 @@ impl Keypair {
         let mut signed_len: u64 = 0;
 
         let SecretKey(sk) = self.sk;
+        let PublicKey(pk) = self.pk;
 
         unsafe {
             crypto_sign(signed.as_mut_ptr(),
@@ -135,7 +136,7 @@ impl Keypair {
             signed.set_len(signed_len as uint);
         }
 
-        SignedMsg { pk: self.pk, signed: signed }
+        SignedMsg { pk: PublicKey(pk), signed: signed }
     }
 }
 
