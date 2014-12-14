@@ -50,9 +50,11 @@ pub const PUBLICKEY_BYTES: uint = 32;
 pub const SECRETKEY_BYTES: uint = 32;
 
 /// A secret key used by CryptoBox
+#[deriving(Copy)]
 pub struct SecretKey ([u8, ..SECRETKEY_BYTES]);
 
 /// A public key used by CryptoBox
+#[deriving(Copy)]
 pub struct PublicKey ([u8, ..PUBLICKEY_BYTES]);
 
 impl PublicKey {
@@ -80,6 +82,7 @@ impl SecretKey {
 }
 
 /// A asymmetric keypair containing matching public and private keys.
+#[deriving(Copy)]
 pub struct Keypair {
     /// Public key
     pub pk: PublicKey,
@@ -135,6 +138,7 @@ impl BoxedMsg {
 
 /// Struct enabling bidirectional asymmetrically encrypted communication
 /// between two parties.
+#[deriving(Copy)]
 pub struct CryptoBox {
     /// Key used to decrypt messages passed to this CryptoBox. Sender must have
     /// the matching public key.
