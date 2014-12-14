@@ -1,6 +1,5 @@
 #![crate_name = "knuckle"]
 #![crate_type = "lib"]
-#![license = "MIT"]
 
 #![feature(globs)]
 //#![deny(missing_doc)]
