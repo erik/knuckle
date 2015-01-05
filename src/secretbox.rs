@@ -34,7 +34,7 @@ pub const ZERO_BYTES: uint = 32;
 /// Encapsulates both the nonce value and cipher text returned by `encrypt`.
 pub struct SecretMsg {
     /// Nonce value used for this ciphertext.
-    pub nonce: [u8, ..NONCE_BYTES],
+    pub nonce: [u8; NONCE_BYTES],
     pub cipher: Vec<u8>
 }
 
@@ -44,7 +44,7 @@ impl SecretMsg {
             return None
         }
 
-        let mut nonce = [0u8, ..NONCE_BYTES];
+        let mut nonce = [0u8; NONCE_BYTES];
         let cipher = bytes.slice_from(NONCE_BYTES);
 
         copy_memory(&mut nonce, bytes.slice(0, NONCE_BYTES));
@@ -65,7 +65,7 @@ impl SecretMsg {
 ///
 /// This struct wraps access to encrypting and decrypting messages.
 #[deriving(Copy)]
-pub struct SecretKey ([u8, ..KEY_BYTES]);
+pub struct SecretKey ([u8; KEY_BYTES]);
 
 impl SecretKey {
     /// Generate a secret key from the bytes of a given string.
@@ -77,7 +77,7 @@ impl SecretKey {
     pub fn from_slice(slice: &[u8]) -> SecretKey {
         assert!(slice.len() <= KEY_BYTES);
 
-        let mut sized = [0u8, ..KEY_BYTES];
+        let mut sized = [0u8; KEY_BYTES];
         copy_memory(&mut sized, slice);
 
         SecretKey(sized)
@@ -91,7 +91,7 @@ impl SecretKey {
         let mut stretched: Vec<u8> = Vec::from_elem(ZERO_BYTES, 0u8);
         stretched.push_all(msg);
 
-        let mut nonce = [0u8, ..NONCE_BYTES];
+        let mut nonce = [0u8; NONCE_BYTES];
         let mut cipher = Vec::from_elem(stretched.len(), 0u8);
         let &SecretKey(sk) = self;
 

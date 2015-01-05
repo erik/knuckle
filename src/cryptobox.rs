@@ -51,16 +51,16 @@ pub const SECRETKEY_BYTES: uint = 32;
 
 /// A secret key used by CryptoBox
 #[deriving(Copy)]
-pub struct SecretKey ([u8, ..SECRETKEY_BYTES]);
+pub struct SecretKey ([u8; SECRETKEY_BYTES]);
 
 /// A public key used by CryptoBox
 #[deriving(Copy)]
-pub struct PublicKey ([u8, ..PUBLICKEY_BYTES]);
+pub struct PublicKey ([u8; PUBLICKEY_BYTES]);
 
 impl PublicKey {
     /// Generate a public key matching a given secret key.
     pub fn from_secret_key(key: SecretKey) -> PublicKey {
-        let mut pk = [0u8, ..PUBLICKEY_BYTES];
+        let mut pk = [0u8; PUBLICKEY_BYTES];
         let SecretKey(sk) = key;
 
         unsafe { crypto_scalarmult_base(pk.as_mut_ptr(), sk.as_ptr()); }
@@ -73,7 +73,7 @@ impl SecretKey {
     /// Generate a random new secret key. This is done simply by grabbing the
     /// appropriate number of random bytes.
     pub fn new() -> SecretKey {
-        let mut sk = [0u8, ..SECRETKEY_BYTES];
+        let mut sk = [0u8; SECRETKEY_BYTES];
 
         unsafe { randombytes(sk.as_mut_ptr(), SECRETKEY_BYTES as u64); }
 
@@ -93,8 +93,8 @@ pub struct Keypair {
 impl Keypair {
     /// Generate a random matching public and private key.
     pub fn new() -> Keypair {
-        let mut pk = [0u8, ..PUBLICKEY_BYTES];
-        let mut sk = [0u8, ..SECRETKEY_BYTES];
+        let mut pk = [0u8; PUBLICKEY_BYTES];
+        let mut sk = [0u8; SECRETKEY_BYTES];
 
         unsafe {
             crypto_box_keypair(pk.as_mut_ptr(), sk.as_mut_ptr());
@@ -107,7 +107,7 @@ impl Keypair {
 ///Struct representing the encrypted contents of a message.
 pub struct BoxedMsg {
     /// Nonce value used for this encrypted message
-    pub nonce: [u8, ..NONCE_BYTES],
+    pub nonce: [u8; NONCE_BYTES],
     /// The ciphertext value of the encrypted plaintext
     pub cipher: Vec<u8>
 }
@@ -127,7 +127,7 @@ impl BoxedMsg {
             return None
         }
 
-        let mut nonce = [0u8, ..NONCE_BYTES];
+        let mut nonce = [0u8; NONCE_BYTES];
         let cipher = bytes.slice_from(NONCE_BYTES);
 
         copy_memory(&mut nonce, bytes.slice(0, NONCE_BYTES));
@@ -162,7 +162,7 @@ impl CryptoBox {
         let SecretKey(sk) = self.sk;
         let PublicKey(pk) = self.pk;
 
-        let mut nonce = [0u8, ..NONCE_BYTES];
+        let mut nonce = [0u8; NONCE_BYTES];
         let mut cipher = Vec::from_elem(stretched.len(), 0u8);
 
         unsafe {

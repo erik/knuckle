@@ -30,11 +30,11 @@ pub const SIGN_BYTES: uint = 64;
 
 /// Key used to verify the validity of signed messages.
 #[deriving(Copy)]
-pub struct PublicKey ([u8, ..PUBKEY_BYTES]);
+pub struct PublicKey ([u8; PUBKEY_BYTES]);
 
 /// Secret key used to generate valid message signatures.
 #[deriving(Copy)]
-pub struct SecretKey ([u8, ..SECKEY_BYTES]);
+pub struct SecretKey ([u8; SECKEY_BYTES]);
 
 /// Encapsulates the verification key and signed message.
 pub struct SignedMsg {
@@ -92,7 +92,7 @@ impl SignedMsg {
             return None;
         }
 
-        let mut pk = [0u8, ..PUBKEY_BYTES];
+        let mut pk = [0u8; PUBKEY_BYTES];
         let signed = msg.slice_from(PUBKEY_BYTES);
 
         copy_memory(&mut pk, msg.slice(0, PUBKEY_BYTES));
@@ -111,8 +111,8 @@ pub struct Keypair {
 impl Keypair {
     /// Securely generate a random new signing keypair
     pub fn new() -> Keypair {
-        let mut pk = [0u8, ..PUBKEY_BYTES];
-        let mut sk = [0u8, ..SECKEY_BYTES];
+        let mut pk = [0u8; PUBKEY_BYTES];
+        let mut sk = [0u8; SECKEY_BYTES];
 
         unsafe {
             crypto_sign_keypair(pk.as_mut_ptr(), sk.as_mut_ptr());

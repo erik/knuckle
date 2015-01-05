@@ -17,8 +17,8 @@ use bindings::*;
 pub const HASH_BYTES: uint = 64;
 
 /// Hash a given message.
-pub fn hash(msg: &[u8]) -> [u8, ..HASH_BYTES] {
-    let mut hash = [0u8, ..HASH_BYTES];
+pub fn hash(msg: &[u8]) -> [u8; HASH_BYTES] {
+    let mut hash = [0u8; HASH_BYTES];
 
     unsafe {
         crypto_hash(hash.as_mut_ptr(), msg.as_ptr(), msg.len() as u64);
