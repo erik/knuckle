@@ -29,11 +29,11 @@ pub const SECKEY_BYTES: uint = 64;
 pub const SIGN_BYTES: uint = 64;
 
 /// Key used to verify the validity of signed messages.
-#[deriving(Copy)]
+#[derive(Copy)]
 pub struct PublicKey ([u8; PUBKEY_BYTES]);
 
 /// Secret key used to generate valid message signatures.
-#[deriving(Copy)]
+#[derive(Copy)]
 pub struct SecretKey ([u8; SECKEY_BYTES]);
 
 /// Encapsulates the verification key and signed message.
@@ -102,7 +102,7 @@ impl SignedMsg {
 }
 
 /// Struct representing a signing key pair, used to create signed messages.
-#[deriving(Copy)]
+#[derive(Copy)]
 pub struct Keypair {
     pub sk: SecretKey,
     pub pk: PublicKey

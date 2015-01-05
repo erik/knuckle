@@ -64,7 +64,7 @@ impl SecretMsg {
 /// Shared secret key. Must be `<= KEY_BYTES` bytes long.
 ///
 /// This struct wraps access to encrypting and decrypting messages.
-#[deriving(Copy)]
+#[derive(Copy)]
 pub struct SecretKey ([u8; KEY_BYTES]);
 
 impl SecretKey {

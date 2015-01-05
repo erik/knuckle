@@ -6,7 +6,7 @@ pub const KEY_BYTES: uint = 32;
 
 pub type SecretKey = [u8; KEY_BYTES];
 
-#[deriving(Copy)]
+#[derive(Copy)]
 pub struct Stream {
     pub sk: SecretKey
 }
