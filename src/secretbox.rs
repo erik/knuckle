@@ -21,6 +21,7 @@
 //! ```
 
 use bindings::*;
+use std::iter::repeat;
 use std::slice::bytes::copy_memory;
 
 /// Size of shared secret key used for symmetric encryption.
@@ -88,14 +89,14 @@ impl SecretKey {
     /// A random nonce value will be securely generated and returned
     /// as part of the response.
     pub fn encrypt(&self, msg: &[u8]) -> SecretMsg {
-        let mut stretched: Vec<u8> = Vec::from_elem(ZERO_BYTES, 0u8);
+        let mut stretched  = [0u8; ZERO_BYTES].to_vec();
         stretched.push_all(msg);
 
         let mut nonce = [0u8; NONCE_BYTES];
-        let mut cipher = Vec::from_elem(stretched.len(), 0u8);
         let &SecretKey(sk) = self;
 
         unsafe {
+            let mut cipher: Vec<u8> = repeat(0u8).take(stretched.len()).collect();
             randombytes(nonce.as_mut_ptr(), NONCE_BYTES as u64);
 
             // TODO: Better error handling
@@ -104,7 +105,10 @@ impl SecretKey {
                                    stretched.len() as u64,
                                    nonce.as_ptr(),
                                    sk.as_ptr()) {
-                0 => SecretMsg { nonce: nonce, cipher: cipher },
+                0 => SecretMsg {
+                    nonce: nonce,
+                    cipher: cipher
+                },
                 _ => panic!("crypto_secretbox failed")
             }
         }
@@ -117,7 +121,7 @@ impl SecretKey {
     /// tampered with or corrupted), then None will be returned instead.
     pub fn decrypt(&self, msg: &SecretMsg) -> Option<Vec<u8>> {
         let &SecretKey(sk) = self;
-        let mut plaintext = Vec::from_elem(msg.cipher.len(), 0u8);
+        let mut plaintext: Vec<u8> = repeat(0u8).take(msg.cipher.len()).collect();
 
         unsafe {
             match crypto_secretbox_open(plaintext.as_mut_ptr(),
@@ -137,7 +141,7 @@ impl SecretKey {
 #[test]
 fn test_secretbox_sanity() {
     for i in range(0 as uint, 16) {
-        let msg = Vec::from_elem(i * 4, i as u8);
+        let msg: Vec<u8> = repeat(i as u8).take(i * 4).collect();
 
         let key = SecretKey::from_str("some secret key");
         let SecretMsg { nonce, cipher } = key.encrypt(msg.as_slice());
@@ -157,7 +161,7 @@ fn test_secretbox_sanity() {
 
 #[test]
 fn test_secretbox_uniqueness() {
-    let msg = Vec::from_elem(128, 0x53u8);
+    let msg: Vec<u8> = repeat(0x53u8).take(128).collect();
 
     let key1 = SecretKey::from_str("1");
     let key2 = SecretKey::from_str("");
@@ -174,7 +178,7 @@ fn test_secretbox_uniqueness() {
 #[test]
 fn test_secretbox_mac_sanity() {
 
-    let msg = Vec::from_elem(0xff, 0xff as u8);
+    let msg: Vec<u8> = repeat(0xff).take(0xff).collect();
 
     let key = SecretKey::from_str("some secret key");
 

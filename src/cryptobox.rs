@@ -38,6 +38,7 @@
 //! ```
 
 use bindings::*;
+use std::iter::repeat;
 use std::slice::bytes::copy_memory;
 
 /// Size of zero padding used in encrypted messages.
@@ -156,14 +157,14 @@ impl CryptoBox {
     /// Sign a message using this box's secret key and encrypt the
     /// message to the given recipient's PublicKey.
     pub fn encrypt(&self, msg: &[u8]) -> BoxedMsg {
-        let mut stretched = Vec::from_elem(ZERO_BYTES, 0u8);
+        let mut stretched = [0u8; ZERO_BYTES].to_vec();
         stretched.push_all(msg);
 
         let SecretKey(sk) = self.sk;
         let PublicKey(pk) = self.pk;
 
         let mut nonce = [0u8; NONCE_BYTES];
-        let mut cipher = Vec::from_elem(stretched.len(), 0u8);
+        let mut cipher: Vec<u8> = repeat(0u8).take(stretched.len()).collect();
 
         unsafe {
             randombytes(nonce.as_mut_ptr(), NONCE_BYTES as u64);
@@ -186,7 +187,7 @@ impl CryptoBox {
     pub fn decrypt(&self, box_msg: BoxedMsg) -> Option<Vec<u8>> {
         let BoxedMsg { nonce, cipher } = box_msg;
 
-        let mut msg = Vec::from_elem(cipher.len(), 0u8);
+        let mut msg: Vec<u8> = repeat(0u8).take(cipher.len()).collect();
 
         let SecretKey(sk) = self.sk;
         let PublicKey(pk) = self.pk;
@@ -216,7 +217,7 @@ fn test_cryptobox_sanity() {
         let box1 = CryptoBox::from_key_pair(key1.sk, key2.pk);
         let box2 = CryptoBox::from_key_pair(key2.sk, key1.pk);
 
-        let msg = Vec::from_elem(i * 4, i as u8);
+        let msg: Vec<u8> = repeat(i as u8).take(i * 4).collect();
 
         let boxed = box1.encrypt(msg.as_slice());
 

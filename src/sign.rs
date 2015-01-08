@@ -19,6 +19,7 @@
 //! ```
 
 use bindings::*;
+
 use std::slice::bytes::copy_memory;
 
 /// Number of bytes in the sign public key
@@ -49,8 +50,8 @@ impl SignedMsg {
     pub fn verify(&self) -> Option<Vec<u8>> {
         let PublicKey(pk) = self.pk;
 
-        let mut msg: Vec<u8> = Vec::from_elem(self.signed.len(), 0u8);
-        let mut msg_len: u64 = 0;
+        let mut msg = Vec::with_capacity(self.signed.len());
+        let mut msg_len = 0u64;
 
         unsafe {
             match crypto_sign_open(msg.as_mut_ptr(),
@@ -123,7 +124,7 @@ impl Keypair {
 
     /// Sign a given message with this keypair's signing key.
     pub fn sign(&self, msg: &[u8]) -> SignedMsg {
-        let mut signed: Vec<u8> = Vec::from_elem(msg.len() + SIGN_BYTES, 0u8);
+        let mut signed = Vec::with_capacity(msg.len() + SIGN_BYTES);
         let mut signed_len: u64 = 0;
 
         let SecretKey(sk) = self.sk;
@@ -146,9 +147,11 @@ impl Keypair {
 
 #[test]
 fn test_sign_sanity() {
+    use std::iter::repeat;
+
     for i in range(1 as uint, 16) {
         let keypair = Keypair::new();
-        let msg = Vec::from_elem(i * 4, i as u8);
+        let msg: Vec<u8> = repeat(i as u8).take(i * 4).collect();
 
         let SecretKey(sk) = keypair.sk;
         let PublicKey(pk) = keypair.pk;
