@@ -1,8 +1,8 @@
 //!
 //! TODO: Write me
 
-pub const KEY_BYTES: uint = 32;
-// const NONCE_BYTES: uint = 8;
+pub const KEY_BYTES: usize = 32;
+// const NONCE_BYTES: usize = 8;
 
 pub type SecretKey = [u8; KEY_BYTES];
 

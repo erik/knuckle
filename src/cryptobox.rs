@@ -42,13 +42,13 @@ use std::iter::repeat;
 use std::slice::bytes::copy_memory;
 
 /// Size of zero padding used in encrypted messages.
-pub const ZERO_BYTES: uint = 32;
+pub const ZERO_BYTES: usize = 32;
 /// Size of encrypted message's nonce value.
-pub const NONCE_BYTES: uint = 24;
+pub const NONCE_BYTES: usize = 24;
 /// Size of public key.
-pub const PUBLICKEY_BYTES: uint = 32;
+pub const PUBLICKEY_BYTES: usize = 32;
 /// Size of secret key.
-pub const SECRETKEY_BYTES: uint = 32;
+pub const SECRETKEY_BYTES: usize = 32;
 
 /// A secret key used by CryptoBox
 #[derive(Copy)]
@@ -210,7 +210,7 @@ impl CryptoBox {
 
 #[test]
 fn test_cryptobox_sanity() {
-    for i in range(0 as uint, 16) {
+    for i in range(0 as usize, 16) {
         let key1 = Keypair::new();
         let key2 = Keypair::new();
 
@@ -239,7 +239,7 @@ fn test_cryptobox_sanity() {
 
 #[test]
 fn test_cryptobox_pubkey_from_keypair() {
-    for _ in range(0i, 16) {
+    for _ in range(0is, 16) {
         let key = Keypair::new();
         let pubkey = PublicKey::from_secret_key(key.sk);
 
@@ -252,7 +252,7 @@ fn test_cryptobox_pubkey_from_keypair() {
 
 #[test]
 fn test_cryptobox_pubkey_from_seckey() {
-    for _ in range(0i, 16) {
+    for _ in range(0is, 16) {
         let key = SecretKey::new();
         let pk = PublicKey::from_secret_key(key);
 
@@ -275,7 +275,7 @@ fn test_cryptobox_pubkey_from_seckey() {
 
 #[test]
 fn test_cryptobox_mac_sanity() {
-    for _ in range(0i, 16) {
+    for _ in range(0is, 16) {
         let kp1 = Keypair::new();
         let kp2 = Keypair::new();
 

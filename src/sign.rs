@@ -23,11 +23,11 @@ use bindings::*;
 use std::slice::bytes::copy_memory;
 
 /// Number of bytes in the sign public key
-pub const PUBKEY_BYTES: uint = 32;
+pub const PUBKEY_BYTES: usize = 32;
 /// Number of bytes in the sign private key
-pub const SECKEY_BYTES: uint = 64;
+pub const SECKEY_BYTES: usize = 64;
 /// Bytes of padding used in each signed message
-pub const SIGN_BYTES: uint = 64;
+pub const SIGN_BYTES: usize = 64;
 
 /// Key used to verify the validity of signed messages.
 #[derive(Copy)]
@@ -61,7 +61,7 @@ impl SignedMsg {
                                    pk.as_ptr()) {
                 -3 => None,
                 0  => {
-                    msg.set_len(msg_len as uint);
+                    msg.set_len(msg_len as usize);
                     Some(msg)
                 },
                 _  => panic!("Impossible things happened")
@@ -137,7 +137,7 @@ impl Keypair {
                         msg.len() as u64,
                         sk.as_ptr());
 
-            signed.set_len(signed_len as uint);
+            signed.set_len(signed_len as usize);
         }
 
         SignedMsg { pk: PublicKey(pk), signed: signed }
@@ -149,7 +149,7 @@ impl Keypair {
 fn test_sign_sanity() {
     use std::iter::repeat;
 
-    for i in range(1 as uint, 16) {
+    for i in range(1 as usize, 16) {
         let keypair = Keypair::new();
         let msg: Vec<u8> = repeat(i as u8).take(i * 4).collect();
 

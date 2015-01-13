@@ -9,7 +9,7 @@ use std::iter::repeat;
 /// Return a vector of the specified length containing securely
 /// generated random bytes.
 pub fn random_bytes(len: u64) -> Vec<u8> {
-    let mut vec: Vec<u8> = repeat(0u8).take(len as uint).collect();
+    let mut vec: Vec<u8> = repeat(0u8).take(len as usize).collect();
 
     unsafe {
         randombytes(vec.as_mut_ptr(), len);

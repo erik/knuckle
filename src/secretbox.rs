@@ -25,11 +25,11 @@ use std::iter::repeat;
 use std::slice::bytes::copy_memory;
 
 /// Size of shared secret key used for symmetric encryption.
-pub const KEY_BYTES: uint = 32;
+pub const KEY_BYTES: usize = 32;
 /// Size of the nonce value.
-pub const NONCE_BYTES: uint = 24;
+pub const NONCE_BYTES: usize = 24;
 /// Size of the zero padding applied to each message.
-pub const ZERO_BYTES: uint = 32;
+pub const ZERO_BYTES: usize = 32;
 
 
 /// Encapsulates both the nonce value and cipher text returned by `encrypt`.
@@ -140,7 +140,7 @@ impl SecretKey {
 
 #[test]
 fn test_secretbox_sanity() {
-    for i in range(0 as uint, 16) {
+    for i in range(0 as usize, 16) {
         let msg: Vec<u8> = repeat(i as u8).take(i * 4).collect();
 
         let key = SecretKey::from_str("some secret key");
@@ -187,11 +187,11 @@ fn test_secretbox_mac_sanity() {
     let mut ciphers = [cipher.clone(), cipher.clone(), cipher.clone()];
 
     // tamper with the cipher text in various ways
-    ciphers[0u].push(0u8);
-    ciphers[1u].pop();
+    ciphers[0us].push(0u8);
+    ciphers[1us].pop();
 
-    let last = ciphers[2u].pop().unwrap();
-    ciphers[2u].push(last + 1);
+    let last = ciphers[2us].pop().unwrap();
+    ciphers[2us].push(last + 1);
 
     for c in ciphers.iter() {
         let decr = key.decrypt(&SecretMsg { nonce: nonce, cipher: c.clone() });
