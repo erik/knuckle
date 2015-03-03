@@ -1,7 +1,7 @@
 #![crate_name = "knuckle"]
 #![crate_type = "lib"]
 
-#![feature(libc)]
+#![feature(core, collections, libc)]
 
 //#![deny(missing_doc)]
 

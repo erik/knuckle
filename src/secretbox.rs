@@ -46,16 +46,16 @@ impl SecretMsg {
         }
 
         let mut nonce = [0u8; NONCE_BYTES];
-        let cipher = bytes.slice_from(NONCE_BYTES);
+        let cipher = &bytes[NONCE_BYTES..];
 
-        copy_memory(&mut nonce, bytes.slice(0, NONCE_BYTES));
+        copy_memory(&mut nonce, &bytes[0 .. NONCE_BYTES]);
 
         Some(SecretMsg { nonce: nonce, cipher: cipher.to_vec() })
     }
 
     pub fn as_bytes(&self) -> Vec<u8> {
         let mut buf = self.nonce.to_vec();
-        buf.push_all(self.cipher.as_slice());
+        buf.push_all(&self.cipher);
 
         buf
     }
@@ -129,7 +129,7 @@ impl SecretKey {
                                         msg.cipher.len() as u64,
                                         msg.nonce.as_ptr(),
                                         sk.as_ptr()) {
-                0 => Some(plaintext.slice(ZERO_BYTES, plaintext.len()).to_vec()),
+                0 => Some((&plaintext[ZERO_BYTES .. plaintext.len()]).to_vec()),
                 -2 => None,
                 _ => panic!("crypto_secretbox_open failed")
             }

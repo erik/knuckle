@@ -79,7 +79,7 @@ impl SignedMsg {
         let PublicKey(pk) = self.pk;
         let mut buf = pk.to_vec();
 
-        buf.push_all(self.signed.as_slice());
+        buf.push_all(&self.signed);
 
         buf
     }
@@ -94,9 +94,9 @@ impl SignedMsg {
         }
 
         let mut pk = [0u8; PUBKEY_BYTES];
-        let signed = msg.slice_from(PUBKEY_BYTES);
+        let signed = &msg[PUBKEY_BYTES..];
 
-        copy_memory(&mut pk, msg.slice(0, PUBKEY_BYTES));
+        copy_memory(&mut pk, &msg[0 .. PUBKEY_BYTES]);
 
         Some(SignedMsg { pk: PublicKey(pk), signed: signed.to_vec() })
     }

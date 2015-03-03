@@ -117,7 +117,7 @@ impl BoxedMsg {
     /// Serialize a BoxedMsg into bytes, use `BoxedMsg::from_bytes` to deserialize.
     pub fn as_bytes(&self) -> Vec<u8> {
         let mut buf = self.nonce.to_vec();
-        buf.push_all(self.cipher.as_slice());
+        buf.push_all(&self.cipher);
 
         buf
     }
@@ -129,9 +129,9 @@ impl BoxedMsg {
         }
 
         let mut nonce = [0u8; NONCE_BYTES];
-        let cipher = bytes.slice_from(NONCE_BYTES);
+        let cipher = &bytes[NONCE_BYTES..];
 
-        copy_memory(&mut nonce, bytes.slice(0, NONCE_BYTES));
+        copy_memory(&mut nonce, &bytes[0 .. NONCE_BYTES]);
 
         Some(BoxedMsg { nonce: nonce, cipher: cipher.to_vec() })
     }
@@ -199,7 +199,7 @@ impl CryptoBox {
                                   nonce.as_ptr(),
                                   pk.as_ptr(),
                                   sk.as_ptr()) {
-                0 => Some(msg.slice(ZERO_BYTES, msg.len()).to_vec()),
+                0 => Some((&msg[ZERO_BYTES .. msg.len()]).to_vec()),
                 -2 => None,
                 _ => panic!("crypto_box_open failed")
             }
