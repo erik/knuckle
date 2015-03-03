@@ -221,7 +221,7 @@ fn test_cryptobox_sanity() {
 
         let boxed = box1.encrypt(msg.as_slice());
 
-        print!("enc:\t{}\nnonce:\t{}\n", boxed.cipher, boxed.nonce.to_vec());
+        print!("enc:\t{:?}\nnonce:\t{:?}\n", boxed.cipher, boxed.nonce.to_vec());
 
         let plain_opt = box2.decrypt(boxed);
 
@@ -229,8 +229,8 @@ fn test_cryptobox_sanity() {
 
         let plain = plain_opt.unwrap();
 
-        print!("plain:\t{}\n", plain);
-        print!("msg:\t{}\n", msg);
+        print!("plain:\t{:?}\n", plain);
+        print!("msg:\t{:?}\n", msg);
 
         assert!(msg == plain);
     }
@@ -239,7 +239,7 @@ fn test_cryptobox_sanity() {
 
 #[test]
 fn test_cryptobox_pubkey_from_keypair() {
-    for _ in range(0is, 16) {
+    for _ in range(0, 16) {
         let key = Keypair::new();
         let pubkey = PublicKey::from_secret_key(key.sk);
 
@@ -252,7 +252,7 @@ fn test_cryptobox_pubkey_from_keypair() {
 
 #[test]
 fn test_cryptobox_pubkey_from_seckey() {
-    for _ in range(0is, 16) {
+    for _ in range(0, 16) {
         let key = SecretKey::new();
         let pk = PublicKey::from_secret_key(key);
 
@@ -266,8 +266,8 @@ fn test_cryptobox_pubkey_from_seckey() {
 
         let plain = plain_opt.unwrap();
 
-        print!("plain:\t{}\n", plain);
-        print!("msg:\t{}\n", msg);
+        print!("plain:\t{:?}\n", plain);
+        print!("msg:\t{:?}\n", msg);
 
         assert!(plain == msg.to_vec());
     }
@@ -275,7 +275,7 @@ fn test_cryptobox_pubkey_from_seckey() {
 
 #[test]
 fn test_cryptobox_mac_sanity() {
-    for _ in range(0is, 16) {
+    for _ in range(0, 16) {
         let kp1 = Keypair::new();
         let kp2 = Keypair::new();
 
@@ -331,7 +331,7 @@ fn test_cryptobox_tamper_resistance() {
         let tampered_boxed = BoxedMsg { nonce: boxed.nonce, cipher: tampered_msg.clone() };
         let plaintext = cb.decrypt(tampered_boxed);
 
-        println!("msg:\t{}\ntampered:\t{}\nplaintext:\t{}", msg, tampered_msg, plaintext);
+        println!("msg:\t{:?}\ntampered:\t{:?}\nplaintext:\t{:?}", msg, tampered_msg, plaintext);
         assert!(plaintext.is_none());
     }
 }

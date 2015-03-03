@@ -156,12 +156,12 @@ fn test_sign_sanity() {
         let SecretKey(sk) = keypair.sk;
         let PublicKey(pk) = keypair.pk;
 
-        println!("sk: {}\npk: {}", sk.as_slice(), pk.as_slice());
+        println!("sk: {:?}\npk: {:?}", sk.as_slice(), pk.as_slice());
 
         let sig = keypair.sign(msg.as_slice());
         let desig = sig.verify();
 
-        println!("msg:\t{}\nsig:\t{}\ndesig:\t{}", msg, sig.signed, desig);
+        println!("msg:\t{:?}\nsig:\t{:?}\ndesig:\t{:?}", msg, sig.signed, desig);
 
         assert!(desig.is_some());
         assert!(desig.unwrap() == msg);
@@ -181,7 +181,7 @@ fn test_sign_fail_sanity() {
     let altered_sig = SignedMsg { pk: key2.pk, signed: sig.signed.clone() };
     let desig = altered_sig.verify();
 
-    println!("msg:\t{}\nsig:\t{}\ndesig:\t{}", msg, sig.signed, desig);
+    println!("msg:\t{:?}\nsig:\t{:?}\ndesig:\t{:?}", msg, sig.signed, desig);
 
     assert!(desig.is_none());
 }
@@ -201,7 +201,7 @@ fn test_sign_tamper_resistance() {
         let tampered_sig = SignedMsg { pk: keypair.pk, signed: tampered_msg.clone() };
         let design = tampered_sig.verify();
 
-        println!("msg:\t{}\nsig:\t{}\ndesig:\t{}", msg, sig.signed, design);
+        println!("msg:\t{:?}\nsig:\t{:?}\ndesig:\t{:?}", msg, sig.signed, design);
         assert!(design.is_none());
     }
 }

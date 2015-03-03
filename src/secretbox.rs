@@ -17,7 +17,7 @@
 //! // ...
 //!
 //! let decr_opt = key.decrypt(&enc);
-//! println!("decrypted: {}", decr_opt.unwrap());
+//! println!("decrypted: {:?}", decr_opt.unwrap());
 //! ```
 
 use bindings::*;
@@ -146,14 +146,14 @@ fn test_secretbox_sanity() {
         let key = SecretKey::from_str("some secret key");
         let SecretMsg { nonce, cipher } = key.encrypt(msg.as_slice());
 
-        println!("enc:\t{}\nnonce:\t{}", cipher, nonce.to_vec());
+        println!("enc:\t{:?}\nnonce:\t{:?}", cipher, nonce.to_vec());
 
         let decr_opt = key.decrypt(&SecretMsg { nonce: nonce, cipher: cipher });
 
         assert!(decr_opt.is_some());
 
         let decr = decr_opt.unwrap();
-        println!("dec:\t{}", decr);
+        println!("dec:\t{:?}", decr);
 
         assert!(msg == decr);
     }
@@ -187,16 +187,16 @@ fn test_secretbox_mac_sanity() {
     let mut ciphers = [cipher.clone(), cipher.clone(), cipher.clone()];
 
     // tamper with the cipher text in various ways
-    ciphers[0us].push(0u8);
-    ciphers[1us].pop();
+    ciphers[0].push(0u8);
+    ciphers[1].pop();
 
-    let last = ciphers[2us].pop().unwrap();
-    ciphers[2us].push(last + 1);
+    let last = ciphers[2].pop().unwrap();
+    ciphers[2].push(last + 1);
 
     for c in ciphers.iter() {
         let decr = key.decrypt(&SecretMsg { nonce: nonce, cipher: c.clone() });
 
-        println!("cipher:\t{}\ndecr:\t{}", c, decr);
+        println!("cipher:\t{:?}\ndecr:\t{:?}", c, decr);
         assert!(decr.is_none());
     }
 
@@ -233,7 +233,7 @@ fn test_secretkey_tamper_resistance() {
         let tampered = SecretMsg { nonce: encr.nonce, cipher: tampered_msg.clone() };
         let plaintext = key.decrypt(&tampered);
 
-        println!("msg:\t{}\ntampered:\t{}\nplaintext:\t{}", msg, tampered.cipher, plaintext);
+        println!("msg:\t{:?}\ntampered:\t{:?}\nplaintext:\t{:?}", msg, tampered.cipher, plaintext);
         assert!(plaintext.is_none());
     }
 }

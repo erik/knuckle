@@ -1,3 +1,5 @@
+#![feature(fs, path, process, core)]
+
 use std::fs::PathExt;
 use std::path::Path;
 use std::process::Command;
