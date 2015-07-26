@@ -48,7 +48,7 @@ impl SecretMsg {
         let mut nonce = [0u8; NONCE_BYTES];
         let cipher = &bytes[NONCE_BYTES..];
 
-        copy_memory(&mut nonce, &bytes[0 .. NONCE_BYTES]);
+        copy_memory(&bytes[0 .. NONCE_BYTES], &mut nonce);
 
         Some(SecretMsg { nonce: nonce, cipher: cipher.to_vec() })
     }
@@ -65,7 +65,7 @@ impl SecretMsg {
 /// Shared secret key. Must be `<= KEY_BYTES` bytes long.
 ///
 /// This struct wraps access to encrypting and decrypting messages.
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct SecretKey ([u8; KEY_BYTES]);
 
 impl SecretKey {
@@ -79,7 +79,7 @@ impl SecretKey {
         assert!(slice.len() <= KEY_BYTES);
 
         let mut sized = [0u8; KEY_BYTES];
-        copy_memory(&mut sized, slice);
+        copy_memory(slice, &mut sized);
 
         SecretKey(sized)
     }
@@ -140,11 +140,11 @@ impl SecretKey {
 
 #[test]
 fn test_secretbox_sanity() {
-    for i in range(0 as usize, 16) {
+    for i in 0..16 {
         let msg: Vec<u8> = repeat(i as u8).take(i * 4).collect();
 
         let key = SecretKey::from_str("some secret key");
-        let SecretMsg { nonce, cipher } = key.encrypt(msg.as_slice());
+        let SecretMsg { nonce, cipher } = key.encrypt(&msg);
 
         println!("enc:\t{:?}\nnonce:\t{:?}", cipher, nonce.to_vec());
 
@@ -166,8 +166,8 @@ fn test_secretbox_uniqueness() {
     let key1 = SecretKey::from_str("1");
     let key2 = SecretKey::from_str("");
 
-    let SecretMsg { nonce: n1, cipher: c1 } = key1.encrypt(msg.as_slice());
-    let SecretMsg { nonce: n2, cipher: c2 } = key2.encrypt(msg.as_slice());
+    let SecretMsg { nonce: n1, cipher: c1 } = key1.encrypt(&msg);
+    let SecretMsg { nonce: n2, cipher: c2 } = key2.encrypt(&msg);
 
     assert!(n1 != n2);
     assert!(c1 != c2);
@@ -182,7 +182,7 @@ fn test_secretbox_mac_sanity() {
 
     let key = SecretKey::from_str("some secret key");
 
-    let SecretMsg { nonce, cipher } = key.encrypt(msg.as_slice());
+    let SecretMsg { nonce, cipher } = key.encrypt(&msg);
 
     let mut ciphers = [cipher.clone(), cipher.clone(), cipher.clone()];
 
@@ -209,14 +209,14 @@ fn test_secretbox_secretmsg() {
     let encr = key.encrypt(msg);
 
     let secret_msg= encr.as_bytes();
-    let re_encr = SecretMsg::from_bytes(secret_msg.as_slice());
+    let re_encr = SecretMsg::from_bytes(&secret_msg);
 
     assert!(re_encr.is_some());
 
     let decr_opt = key.decrypt(&re_encr.unwrap());
 
     assert!(decr_opt.is_some());
-    assert!(decr_opt.unwrap().as_slice() == msg);
+    assert!(decr_opt.unwrap() == msg);
 }
 
 #[test]
@@ -227,7 +227,7 @@ fn test_secretkey_tamper_resistance() {
     let mut tampered_msg = encr.cipher.clone();
 
     // Start past the end of the nonce padding
-    for i in range(16, tampered_msg.len()) {
+    for i in 16..tampered_msg.len() {
         tampered_msg[i] = tampered_msg[i] ^ 0xFF;
 
         let tampered = SecretMsg { nonce: encr.nonce, cipher: tampered_msg.clone() };

@@ -51,11 +51,11 @@ pub const PUBLICKEY_BYTES: usize = 32;
 pub const SECRETKEY_BYTES: usize = 32;
 
 /// A secret key used by CryptoBox
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct SecretKey ([u8; SECRETKEY_BYTES]);
 
 /// A public key used by CryptoBox
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct PublicKey ([u8; PUBLICKEY_BYTES]);
 
 impl PublicKey {
@@ -83,7 +83,7 @@ impl SecretKey {
 }
 
 /// A asymmetric keypair containing matching public and private keys.
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct Keypair {
     /// Public key
     pub pk: PublicKey,
@@ -131,7 +131,7 @@ impl BoxedMsg {
         let mut nonce = [0u8; NONCE_BYTES];
         let cipher = &bytes[NONCE_BYTES..];
 
-        copy_memory(&mut nonce, &bytes[0 .. NONCE_BYTES]);
+        copy_memory(&bytes[0 .. NONCE_BYTES], &mut nonce);
 
         Some(BoxedMsg { nonce: nonce, cipher: cipher.to_vec() })
     }
@@ -139,7 +139,7 @@ impl BoxedMsg {
 
 /// Struct enabling bidirectional asymmetrically encrypted communication
 /// between two parties.
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct CryptoBox {
     /// Key used to decrypt messages passed to this CryptoBox. Sender must have
     /// the matching public key.
@@ -210,7 +210,7 @@ impl CryptoBox {
 
 #[test]
 fn test_cryptobox_sanity() {
-    for i in range(0 as usize, 16) {
+    for i in 0..16 {
         let key1 = Keypair::new();
         let key2 = Keypair::new();
 
@@ -219,7 +219,7 @@ fn test_cryptobox_sanity() {
 
         let msg: Vec<u8> = repeat(i as u8).take(i * 4).collect();
 
-        let boxed = box1.encrypt(msg.as_slice());
+        let boxed = box1.encrypt(&msg);
 
         print!("enc:\t{:?}\nnonce:\t{:?}\n", boxed.cipher, boxed.nonce.to_vec());
 
@@ -239,7 +239,7 @@ fn test_cryptobox_sanity() {
 
 #[test]
 fn test_cryptobox_pubkey_from_keypair() {
-    for _ in range(0, 16) {
+    for _ in 0..16 {
         let key = Keypair::new();
         let pubkey = PublicKey::from_secret_key(key.sk);
 
@@ -252,7 +252,7 @@ fn test_cryptobox_pubkey_from_keypair() {
 
 #[test]
 fn test_cryptobox_pubkey_from_seckey() {
-    for _ in range(0, 16) {
+    for _ in 0..16 {
         let key = SecretKey::new();
         let pk = PublicKey::from_secret_key(key);
 
@@ -275,7 +275,7 @@ fn test_cryptobox_pubkey_from_seckey() {
 
 #[test]
 fn test_cryptobox_mac_sanity() {
-    for _ in range(0, 16) {
+    for _ in 0..16 {
         let kp1 = Keypair::new();
         let kp2 = Keypair::new();
 
@@ -305,14 +305,14 @@ fn test_cryptobox_boxedmsg() {
     let boxed = cb.encrypt(msg);
 
     let bytes = boxed.as_bytes();
-    let reboxed = BoxedMsg::from_bytes(bytes.as_slice());
+    let reboxed = BoxedMsg::from_bytes(&bytes);
 
     assert!(reboxed.is_some());
 
     let plain_opt = cb.decrypt(reboxed.unwrap());
 
     assert!(plain_opt.is_some());
-    assert!(plain_opt.unwrap().as_slice() == msg);
+    assert!(plain_opt.unwrap() == msg);
 }
 
 #[test]
@@ -325,7 +325,7 @@ fn test_cryptobox_tamper_resistance() {
     let mut tampered_msg = boxed.cipher.clone();
 
     // Start past the end of the nonce padding
-    for i in range(16, tampered_msg.len()) {
+    for i in 16..tampered_msg.len() {
         tampered_msg[i] = tampered_msg[i] ^ 0xFF;
 
         let tampered_boxed = BoxedMsg { nonce: boxed.nonce, cipher: tampered_msg.clone() };

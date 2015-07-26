@@ -1,18 +1,8 @@
-#![feature(fs, path, process, core)]
-
-use std::fs::PathExt;
 use std::path::Path;
 use std::process::Command;
 
 fn main() {
     let out_dir = env!("OUT_DIR");
-
-    println!("cargo:rustc-flags=-L {} -l tweetnacl:static", out_dir);
-
-    if Path::new(format!("{}/libtweetnacl.a", out_dir).as_slice()).exists() {
-        println!("Nothing to do...");
-        return;
-    }
 
     Command::new("cc")
         .arg("src/lib/tweetnacl.c")
@@ -20,7 +10,7 @@ fn main() {
         .arg("-fPIC")
         .arg("-Isrc/lib/")
         .arg("-o")
-        .arg(format!("{}/tweetnacl.o", out_dir).as_slice())
+        .arg(format!("{}/tweetnacl.o", out_dir))
         .status()
         .unwrap();
 
@@ -31,4 +21,7 @@ fn main() {
         .current_dir(Path::new(out_dir))
         .status()
         .unwrap();
+
+    println!("cargo:rustc-link-search=native={}", out_dir);
+    println!("cargo:rustc-link-lib=static=tweetnacl");
 }

@@ -1,13 +1,14 @@
 env:
   global:
     - secure: a0aZLlsuJdEsS/94pcCIr9D0WPdoawBH/dCz39/RAxTcT+g56YzlU4RtjyVqnlo92qPYAs11r/CrAGKCJHS92GIESUziA0ZDwgkKpPerJYl/OcTL612ArARO02UDNsD67y+gAOZF5xrt/Sppro65oIqKVYRwY+HKcESlQqp9/b0=
-install:
-  - curl -s https://static.rust-lang.org/rustup.sh | sudo sh - 
-  - export LD_LIBRARY_PATH=$PWD/target/:/usr/local/lib/
+language: rust
+rust:
+  - nightly
 script:
+  - cargo clean
   - cargo build --verbose
   - cargo test --verbose
-  - make clean doc
+  - cargo doc --verbose
 after_script:
   - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
 notifications:
