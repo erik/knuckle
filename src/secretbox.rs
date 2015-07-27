@@ -22,7 +22,7 @@
 
 use bindings::*;
 use std::iter::repeat;
-use std::slice::bytes::copy_memory;
+use std::ptr::copy_nonoverlapping;
 
 /// Size of shared secret key used for symmetric encryption.
 pub const KEY_BYTES: usize = 32;
@@ -48,14 +48,14 @@ impl SecretMsg {
         let mut nonce = [0u8; NONCE_BYTES];
         let cipher = &bytes[NONCE_BYTES..];
 
-        copy_memory(&bytes[0 .. NONCE_BYTES], &mut nonce);
+        unsafe { copy_nonoverlapping(bytes.as_ptr(), nonce.as_mut_ptr(), NONCE_BYTES); }
 
         Some(SecretMsg { nonce: nonce, cipher: cipher.to_vec() })
     }
 
     pub fn as_bytes(&self) -> Vec<u8> {
         let mut buf = self.nonce.to_vec();
-        buf.push_all(&self.cipher);
+        buf.extend(self.cipher.iter().cloned());
 
         buf
     }
@@ -79,7 +79,7 @@ impl SecretKey {
         assert!(slice.len() <= KEY_BYTES);
 
         let mut sized = [0u8; KEY_BYTES];
-        copy_memory(slice, &mut sized);
+        unsafe { copy_nonoverlapping(slice.as_ptr(), sized.as_mut_ptr(), slice.len()); }
 
         SecretKey(sized)
     }
@@ -90,7 +90,7 @@ impl SecretKey {
     /// as part of the response.
     pub fn encrypt(&self, msg: &[u8]) -> SecretMsg {
         let mut stretched  = [0u8; ZERO_BYTES].to_vec();
-        stretched.push_all(msg);
+        stretched.extend(msg.iter().cloned());
 
         let mut nonce = [0u8; NONCE_BYTES];
         let &SecretKey(sk) = self;

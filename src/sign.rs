@@ -20,7 +20,7 @@
 
 use bindings::*;
 
-use std::slice::bytes::copy_memory;
+use std::ptr::copy_nonoverlapping;
 
 /// Number of bytes in the sign public key
 pub const PUBKEY_BYTES: usize = 32;
@@ -85,7 +85,7 @@ impl SignedMsg {
         let PublicKey(pk) = self.pk;
         let mut buf = pk.to_vec();
 
-        buf.push_all(&self.signed);
+        buf.extend(self.signed.iter().cloned());
 
         buf
     }
@@ -102,7 +102,7 @@ impl SignedMsg {
         let mut pk = [0u8; PUBKEY_BYTES];
         let signed = &msg[PUBKEY_BYTES..];
 
-        copy_memory(&msg[0 .. PUBKEY_BYTES], &mut pk);
+        unsafe { copy_nonoverlapping(msg.as_ptr(), pk.as_mut_ptr(), PUBKEY_BYTES); }
 
         Some(SignedMsg { pk: PublicKey(pk), signed: signed.to_vec() })
     }
