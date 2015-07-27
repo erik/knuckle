@@ -39,7 +39,7 @@
 
 use bindings::*;
 use std::iter::repeat;
-use std::slice::bytes::copy_memory;
+use std::ptr::copy_nonoverlapping;
 
 /// Size of zero padding used in encrypted messages.
 pub const ZERO_BYTES: usize = 32;
@@ -117,7 +117,7 @@ impl BoxedMsg {
     /// Serialize a BoxedMsg into bytes, use `BoxedMsg::from_bytes` to deserialize.
     pub fn as_bytes(&self) -> Vec<u8> {
         let mut buf = self.nonce.to_vec();
-        buf.push_all(&self.cipher);
+        buf.extend(self.cipher.iter().cloned());
 
         buf
     }
@@ -131,7 +131,7 @@ impl BoxedMsg {
         let mut nonce = [0u8; NONCE_BYTES];
         let cipher = &bytes[NONCE_BYTES..];
 
-        copy_memory(&bytes[0 .. NONCE_BYTES], &mut nonce);
+        unsafe { copy_nonoverlapping(bytes.as_ptr(), nonce.as_mut_ptr(), NONCE_BYTES); }
 
         Some(BoxedMsg { nonce: nonce, cipher: cipher.to_vec() })
     }
@@ -158,7 +158,7 @@ impl CryptoBox {
     /// message to the given recipient's PublicKey.
     pub fn encrypt(&self, msg: &[u8]) -> BoxedMsg {
         let mut stretched = [0u8; ZERO_BYTES].to_vec();
-        stretched.push_all(msg);
+        stretched.extend(msg.iter().cloned());
 
         let SecretKey(sk) = self.sk;
         let PublicKey(pk) = self.pk;
