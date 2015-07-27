@@ -1,8 +1,7 @@
 #![crate_name = "knuckle"]
 #![crate_type = "lib"]
 
-#![feature(core, collections, libc)]
-
+#![feature(slice_bytes, vec_push_all)]
 //#![deny(missing_doc)]
 
 //! `knuckle` is an opinionated Rust language interface to the
@@ -35,19 +34,15 @@ pub use bindings::*;
 
 /// Exposes direct Rust bindings to the C NaCl interface.
 #[allow(dead_code)]
-#[stable]
 pub mod bindings;
 
 /// Provides authenticated asymmetric key cryptography operations.
-#[stable]
 pub mod cryptobox;
 
 /// Simple interface to strong cryptographic hash function.
-#[stable]
 pub mod hash;
 
 /// Provides authenticated symmetric key cryptography operations.
-#[stable]
 pub mod secretbox;
 
 /// Provides simple interface to generate and validate digital signatures.

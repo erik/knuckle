@@ -8,7 +8,7 @@
 //! let digest1 = hash(b"this is my message");
 //! let digest2 = hash(b"this is your message");
 //!
-//! assert!(digest1.as_slice() != digest2.as_slice());
+//! assert!(&digest1[..] != &digest2[..]);
 //! ```
 
 use bindings::*;
@@ -43,5 +43,5 @@ fn test_hash_sanity() {
                     0x1d, 0x13, 0x8b, 0xc7, 0xaa, 0xd1, 0xaf, 0x3e,
                     0xf7, 0xbf, 0xd5, 0xec, 0x64, 0x6d, 0x6c, 0x28];
 
-    assert_eq!(hash(&x).as_slice(), expected.as_slice());
+    assert_eq!(&hash(&x)[..], &expected[..]);
 }

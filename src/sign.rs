@@ -15,7 +15,7 @@
 //!
 //! let plain_opt = signed.verify();
 //! assert!(plain_opt.is_some());
-//! assert!(plain_opt.unwrap().as_slice() == msg);
+//! assert!(plain_opt.unwrap() == msg);
 //! ```
 
 use bindings::*;
@@ -30,12 +30,18 @@ pub const SECKEY_BYTES: usize = 64;
 pub const SIGN_BYTES: usize = 64;
 
 /// Key used to verify the validity of signed messages.
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct PublicKey ([u8; PUBKEY_BYTES]);
 
 /// Secret key used to generate valid message signatures.
 #[derive(Copy)]
 pub struct SecretKey ([u8; SECKEY_BYTES]);
+
+impl Clone for SecretKey {
+    fn clone(&self) -> SecretKey {
+        *self
+    }
+}
 
 /// Encapsulates the verification key and signed message.
 pub struct SignedMsg {
@@ -96,14 +102,14 @@ impl SignedMsg {
         let mut pk = [0u8; PUBKEY_BYTES];
         let signed = &msg[PUBKEY_BYTES..];
 
-        copy_memory(&mut pk, &msg[0 .. PUBKEY_BYTES]);
+        copy_memory(&msg[0 .. PUBKEY_BYTES], &mut pk);
 
         Some(SignedMsg { pk: PublicKey(pk), signed: signed.to_vec() })
     }
 }
 
 /// Struct representing a signing key pair, used to create signed messages.
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct Keypair {
     pub sk: SecretKey,
     pub pk: PublicKey
@@ -149,16 +155,16 @@ impl Keypair {
 fn test_sign_sanity() {
     use std::iter::repeat;
 
-    for i in range(1 as usize, 16) {
+    for i in 1..16 {
         let keypair = Keypair::new();
         let msg: Vec<u8> = repeat(i as u8).take(i * 4).collect();
 
         let SecretKey(sk) = keypair.sk;
         let PublicKey(pk) = keypair.pk;
 
-        println!("sk: {:?}\npk: {:?}", sk.as_slice(), pk.as_slice());
+        println!("sk: {:?}\npk: {:?}", &sk[..], &pk[..]);
 
-        let sig = keypair.sign(msg.as_slice());
+        let sig = keypair.sign(&msg);
         let desig = sig.verify();
 
         println!("msg:\t{:?}\nsig:\t{:?}\ndesig:\t{:?}", msg, sig.signed, desig);
@@ -195,7 +201,7 @@ fn test_sign_tamper_resistance() {
     let mut tampered_msg = sig.signed.clone();
 
     // Try tampering each of the different bytes of the signed message
-    for i in range(0, tampered_msg.len()) {
+    for i in 0..tampered_msg.len() {
         tampered_msg[i] = tampered_msg[i] ^ 0xFF;
 
         let tampered_sig = SignedMsg { pk: keypair.pk, signed: tampered_msg.clone() };
@@ -213,12 +219,12 @@ fn test_sign_serialization() {
 
     let signed = keypair.sign(msg);
     let serialized = signed.as_bytes();
-    let deserialized = SignedMsg::from_bytes(serialized.as_slice());
+    let deserialized = SignedMsg::from_bytes(&serialized);
 
     assert!(deserialized.is_some());
 
     let validated_msg = deserialized.unwrap().verify();
 
     assert!(validated_msg.is_some());
-    assert!(validated_msg.unwrap().as_slice() == msg);
+    assert!(validated_msg.unwrap() == msg);
 }
